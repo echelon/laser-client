@@ -86,7 +86,7 @@ class Graffiti(Shape):
 			x = pt['x']
 			y = pt['y']
 
-			yield (x, y, CMAX, CMAX, CMAX)
+			yield (x, y, CMAX, CMAX, CMAX/4)
 
 		self.drawn = True
 

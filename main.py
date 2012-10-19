@@ -52,16 +52,20 @@ def main():
 	SHOW = Show()
 	SHOW.stream = ps
 
-	SHOW.animations.append(NameAnimation())
-	SHOW.animations.append(HappyAnimation())
 	#SHOW.animations.append(LogoAnimation())
+	SHOW.animations.append(NameAnimation())
+	SHOW.animations.append(GmlAnimation('gml/2years.gml',
+		mul=20000))
+	#SHOW.animations.append(NameAnimation())
+	SHOW.animations.append(GmlAnimation('gml/happy.gml',
+		mul=20000))
+	#SHOW.animations.append(NameAnimation())
 	SHOW.animations.append(AwesomeAnimation())
 
 	SHOW.next()
 	SHOW.prev()
 
 	SHOW.start_dac_thread()
-	#thread.start_new_thread(dac_thread, ())
 	time.sleep(1.0)
 	thread.start_new_thread(next_anim_thread, ())
 

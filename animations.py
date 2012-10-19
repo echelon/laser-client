@@ -115,7 +115,7 @@ class NameAnimation(Animation):
 		self.blankingSamplePts = 12
 		self.trackingSamplePts = 12
 
-		objCoords = importObj(OBJECTS, MULT_X, MULT_Y)
+		objCoords = importObj(OBJECTS, MULT_X/2.0, MULT_Y/2.0)
 
 		for i in range(len(objCoords)):
 			coords = objCoords[i]
@@ -127,16 +127,16 @@ class NameAnimation(Animation):
 	def animThreadFunc(self):
 		scale = self.scale
 		if self.scaleDirec:
-			scale += NameAnimation.SCALE_RATE
+			scale += self.SCALE_RATE
 		else:
-			scale -= NameAnimation.SCALE_RATE
+			scale -= self.SCALE_RATE
 
-		if scale <= NameAnimation.SCALE_MIN:
-			scale = NameAnimation.SCALE_MIN
+		if scale <= self.SCALE_MIN:
+			scale = self.SCALE_MIN
 			self.scaleDirec = True
 
-		elif scale >= NameAnimation.SCALE_MAX:
-			scale = NameAnimation.SCALE_MAX
+		elif scale >= self.SCALE_MAX:
+			scale = self.SCALE_MAX
 			self.scaleDirec = False
 
 		self.scale = scale
@@ -158,7 +158,7 @@ class AwesomeAnimation(Animation):
 		self.theta = 1.0
 		self.thetaDirec = True
 
-		objCoords = importObj(OBJECTS, MULT_X, MULT_Y)
+		objCoords = importObj(OBJECTS, MULT_X/3.0, MULT_Y/3.0)
 
 		for i in range(len(objCoords)):
 			coords = objCoords[i]
@@ -189,6 +189,38 @@ class AwesomeAnimation(Animation):
 """
 GML
 """
+
+class GmlAnimation(Animation):
+	def __init__(self, filename,
+			theta=math.pi/2, mul=20000, mulX=None, mulY=None):
+
+		if not mulX or not mulY:
+			mulX = mul
+			mulY = mul
+
+		self.filename = filename
+		self.theta = theta
+		self.mulX = mulX
+		self.mulY = mulY
+
+		super(GmlAnimation, self).__init__()
+
+	def setup(self):
+
+		#self.hasAnimationThread = True
+		#self.scale = 1.0
+		#self.theta = 1.0
+		#self.thetaDirec = True
+
+		obj = Graffiti(filename=self.filename,
+						initTheta = self.theta,
+						initMulX = self.mulX,
+						initMulY = self.mulY
+		)
+		self.objects.append(obj)
+
+	def animThreadFunc(self):
+		pass
 
 class HappyAnimation(Animation):
 	"""
