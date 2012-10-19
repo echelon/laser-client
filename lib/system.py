@@ -12,7 +12,9 @@ class Show(object):
 	backing code).
 	"""
 	def __init__(self):
-		self.stream = None # Pointstream (prolly refactor)
+		# Pointstream (prolly refactor)
+		self.stream = None
+
 		self.animations = []
 		self.curIdx = 0
 		self.isTimed = False
@@ -34,8 +36,10 @@ class Show(object):
 			self.stream.objects.append(obj)
 
 		# Switch stream parameters
-		self.stream.blankingSamplePts = anim.blankingSamplePts
-		self.stream.trackingSamplePts = anim.trackingSamplePts
+		self.stream.blankingSamplePts = \
+				anim.blankingSamplePts
+		self.stream.trackingSamplePts = \
+				anim.trackingSamplePts
 
 	def next(self):
 		self._switchBefore()
@@ -58,8 +62,8 @@ class Show(object):
 	def start_dac_thread(self):
 		"""
 		Start the DAC / PointStream thread.
-		It is self-healing and should tolerate all kinds of
-		errors.
+		It is self-healing and should tolerate all kinds
+		of errors.
 		"""
 
 		def t():
@@ -166,21 +170,3 @@ class Animation(object):
 		"""
 		self._doRunThread = False
 
-	"""
-	# TODO -- only really need one thread / each so far
-	until I do input processing, etc.
-	def startThreads(self):
-		pass
-
-	def stopThreads(self):
-		pass
-
-	"""
-
-	"""
-	def thread_dac(self):
-		pass
-
-	def getCurFrame(self):
-		self.frames[self.curIdx]
-	"""

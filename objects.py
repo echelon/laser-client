@@ -124,8 +124,10 @@ class SvgPath(Shape):
 			# Rotate
 			xx = x
 			yy = y
-			x = xx*math.cos(self.theta) - yy*math.sin(self.theta)
-			y = yy*math.cos(self.theta) + xx*math.sin(self.theta)
+			x = xx*math.cos(self.theta) - \
+					yy*math.sin(self.theta)
+			y = yy*math.cos(self.theta) + \
+					xx*math.sin(self.theta)
 
 			# Translate
 			x += self.x

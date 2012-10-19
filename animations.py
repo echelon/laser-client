@@ -222,24 +222,3 @@ class GmlAnimation(Animation):
 	def animThreadFunc(self):
 		pass
 
-class HappyAnimation(Animation):
-	"""
-	Happy Anniversary Text
-	"""
-	def setup(self):
-
-		#self.hasAnimationThread = True
-		#self.scale = 1.0
-		#self.theta = 1.0
-		#self.thetaDirec = True
-
-		obj = Graffiti(filename='gml/happy.gml',
-						initTheta = math.pi/2,
-						initMulX = 80000,
-						initMulY = 80000
-		)
-		self.objects.append(obj)
-
-	def animThreadFunc(self):
-		pass
-

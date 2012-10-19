@@ -52,14 +52,16 @@ def main():
 	SHOW = Show()
 	SHOW.stream = ps
 
+	nameAnim = NameAnimation()
+
 	#SHOW.animations.append(LogoAnimation())
-	SHOW.animations.append(NameAnimation())
-	SHOW.animations.append(GmlAnimation('gml/2years.gml',
-		mul=20000))
-	#SHOW.animations.append(NameAnimation())
+	SHOW.animations.append(nameAnim)
 	SHOW.animations.append(GmlAnimation('gml/happy.gml',
 		mul=20000))
-	#SHOW.animations.append(NameAnimation())
+	SHOW.animations.append(nameAnim)
+	SHOW.animations.append(GmlAnimation('gml/2years.gml',
+		mul=20000))
+	SHOW.animations.append(nameAnim)
 	SHOW.animations.append(AwesomeAnimation())
 
 	SHOW.next()
