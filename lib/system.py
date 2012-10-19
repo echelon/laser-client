@@ -1,4 +1,8 @@
+import time
+import thread
 import random
+
+from lib import dac
 
 class Show(object):
 	"""
@@ -16,14 +20,14 @@ class Show(object):
 	# XXX: POOR DESIGN, UGH!
 	def _switchBefore(self):
 		anim = self.animations[self.curIdx]
-		anim.stopThreads()
+		anim.stopAnimThread()
 
 		# Remove all onscreen objects
 		self.stream.objects = []
 
 	def _switchAfter(self):
 		anim = self.animations[self.curIdx]
-		anim.startThreads()
+		anim.startAnimThread()
 
 		# Add all objects to be drawn
 		for obj in anim.objects:
@@ -47,25 +51,35 @@ class Show(object):
 						len(self.animations) - 1)
 		self._switchAfter()
 
-	def dac_thread(self):
-		# TODO: Reoptimize below.
-		# TODO: Does this belong here?
-		# TODO: Where does anything belong?
-		while True:
-			try:
-				d = dac.DAC(dac.find_first_dac())
-				d.play_stream(self.stream)
+	def start_dac_thread(self):
+		"""
+		Start the DAC / PointStream thread.
+		It is self-healing and should tolerate all kinds of
+		errors.
+		"""
 
-			except KeyboardInterrupt:
-				sys.exit()
+		def t():
+			# TODO: Reoptimize below.
+			# TODO: Does this belong here?
+			# TODO: Where does anything belong?
+			while True:
+				try:
+					d = dac.DAC(dac.find_first_dac())
+					d.play_stream(self.stream)
 
-			except Exception as e:
-				import sys, traceback
-				print '\n---------------------'
-				print 'DacThread Exception: %s' % e
-				print '- - - - - - - - - - -'
-				traceback.print_tb(sys.exc_info()[2])
-				print "\n"
+				except KeyboardInterrupt:
+					sys.exit()
+
+				except Exception as e:
+					import sys, traceback
+					print '\n---------------------'
+					print 'DacThread Exception: %s' % e
+					print '- - - - - - - - - - -'
+					traceback.print_tb(sys.exc_info()[2])
+					print "\n"
+
+		thread.start_new_thread(t, ())
+
 
 	"""
 	def getCurAnim(self):
@@ -92,6 +106,10 @@ class Animation(object):
 		self.timeDelta = None
 		self.timeLast = None
 
+		self.hasAnimationThread = False
+		self.animationSleep = 0.05
+		self._doRunThread = True # To turn on/off
+
 		self.setup()
 
 	def setup(self):
@@ -102,11 +120,45 @@ class Animation(object):
 		"""
 		pass
 
+	def animThreadFunc(self):
+		"""
+		Performs any animation processing in an independent
+		thread. Override if necessary. See the relevant member
+		vars for controlling.
+		"""
+		pass
+
+	def startAnimThread(self):
+		"""
+		Launch Thread. (And thread def.)
+		"""
+		def t():
+			self._doRunThread = True
+			while self._doRunThread:
+				self.animThreadFunc()
+				time.sleep(self.animationSleep)
+
+		if not self.hasAnimationThread:
+			return
+
+		thread.start_new_thread(t, ())
+
+	def stopAnimThread(self):
+		"""
+		Exit Thread.
+		"""
+		self._doRunThread = False
+
+	"""
+	# TODO -- only really need one thread / each so far
+	until I do input processing, etc.
 	def startThreads(self):
 		pass
 
 	def stopThreads(self):
 		pass
+
+	"""
 
 	"""
 	def thread_dac(self):
