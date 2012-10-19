@@ -8,35 +8,53 @@ class Show(object):
 	backing code).
 	"""
 	def __init__(self):
+		self.stream = None # Pointstream (prolly refactor)
 		self.animations = []
 		self.curIdx = 0
 		self.isTimed = False
 
-	def getCurAnim(self):
-		# TODO: This would manage the timer if 
-		# a timeout is currently set. 
-		return self.animations[self.curIdx]
+	# XXX: POOR DESIGN, UGH!
+	def _switchBefore(self):
+		anim = self.animations[self.curIdx]
+		anim.stopThreads()
+
+		# Remove all onscreen objects
+		self.stream.objects = []
+
+	def _switchAfter(self):
+		anim = self.animations[self.curIdx]
+		anim.startThreads()
+
+		# Add all objects to be drawn
+		for obj in anim.objects:
+			self.stream.objects.append(obj)
 
 	def next(self):
+		self._switchBefore()
 		self.curIdx = (self.curIdx+1) % \
 						len(self.animations)
+		self._switchAfter()
 
 	def prev(self):
+		self._switchBefore()
 		self.curIdx = (self.curIdx-1) % \
 						len(self.animations)
+		self._switchAfter()
 
 	def random(self):
+		self._switchBefore()
 		self.curIdx = random.randint(0,
 						len(self.animations) - 1)
+		self._switchAfter()
 
 	def dac_thread(self):
 		# TODO: Reoptimize below.
-		ps = None # TODO
-
+		# TODO: Does this belong here?
+		# TODO: Where does anything belong?
 		while True:
 			try:
 				d = dac.DAC(dac.find_first_dac())
-				d.play_stream(ps)
+				d.play_stream(self.stream)
 
 			except KeyboardInterrupt:
 				sys.exit()
@@ -48,6 +66,13 @@ class Show(object):
 				print '- - - - - - - - - - -'
 				traceback.print_tb(sys.exc_info()[2])
 				print "\n"
+
+	"""
+	def getCurAnim(self):
+		# TODO: This would manage the timer if
+		# a timeout is currently set.
+		return self.animations[self.curIdx]
+	"""
 
 class Animation(object):
 	"""
@@ -77,9 +102,16 @@ class Animation(object):
 		"""
 		pass
 
+	def startThreads(self):
+		pass
+
+	def stopThreads(self):
+		pass
+
+	"""
 	def thread_dac(self):
 		pass
 
 	def getCurFrame(self):
 		self.frames[self.curIdx]
-
+	"""

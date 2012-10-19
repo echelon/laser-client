@@ -84,52 +84,9 @@ class LbLetter(SvgPath):
 		self.turn = not self.turn
 		self.drawn = True
 
-class Svg(Shape):
-
-	def __init__(self, x = 0, y = 0,
-			r = 0, g = 0, b = 0, cords=None):
-		super(Svg, self).__init__(x, y, r, g, b)
-
-		self.drawn = False
-		self.pauseFirst = True
-		self.pauseLast = True
-
-		self.theta = 0
-		self.thetaRate = 0
-
-	def produce(self):
-		"""
-		Generate the points of the circle.
-		"""
-		r, g, b = (0, 0, 0)
-
-		"""
-		for c in self.cords:
-			x = math.floor(float(c['x']) * 10)
-			y = math.floor(float(c['y']) * 10)
-			print x, y
-
-			#yield(0, 0, CMAX, CMAX, CMAX)
-			yield(int(x), int(y), CMAX, CMAX, CMAX)
-		"""
-
-		for i in range(len(OBJECTS)): #obj in OBJECTS:
-			obj = OBJECTS[i]
-			for pt in obj:
-				x = math.floor(pt['x'] * 20)
-				y = math.floor(pt['y'] * 20)
-				yield(int(x), int(y), CMAX, CMAX, CMAX)
-
-
-
-		self.drawn = True
-
 def dac_thread():
 	global objs
 	global ps
-
-	for obj in objs:
-		ps.objects.append(obj)
 
 	while True:
 		try:
@@ -184,11 +141,43 @@ class NameAnimation(Animation):
 
 			self.objects.append(letter)
 
-			print "Test"
+class AwesomeAnimation(Animation):
+	"""
+	Awesome face animation
+	"""
+	def setup(self):
+		from objs.awesome import OBJECTS
+		from objs.awesome import ADD_X
+		from objs.awesome import ADD_Y
+		from objs.awesome import MULT_X
+		from objs.awesome import MULT_Y
+
+		#ps.blankingSamplePts = 12 # TODO TODO TODO
+		#ps.trackingSamplePts = 12 # TODO TODO TODO
+
+		for i in range(len(OBJECTS)):
+			coords = OBJECTS[i]
+
+			# Normalize/fix coordinate system
+			for j in range(len(coords)):
+				c = coords[j]
+				x = math.floor(float(c['x'])*MULT_X) + ADD_X
+				y = math.floor(float(c['y'])*MULT_Y) + ADD_Y
+				coords[j] = {'x': x, 'y': y};
+
+			OBJECTS[i] = coords
+			obj = SvgPath(coords=coords)
+			self.objects.append(obj)
 
 #
 # Start Threads
 #
+
+def next_anim_thread():
+	global SHOW
+	while True:
+		SHOW.next()
+		time.sleep(5.0)
 
 def main():
 	global SHOW
@@ -201,14 +190,18 @@ def main():
 	ps.blankingSamplePts = 12
 	ps.trackingSamplePts = 12
 
-
 	SHOW = Show()
-	anim = NameAnimation()
-	objs = anim.objects
+	SHOW.stream = ps
+
+	SHOW.animations.append(NameAnimation())
+	SHOW.animations.append(AwesomeAnimation())
+
+	SHOW.next()
+	SHOW.prev()
 
 	thread.start_new_thread(dac_thread, ())
 	time.sleep(1.0)
-	#thread.start_new_thread(spin_thread, ())
+	thread.start_new_thread(next_anim_thread, ())
 
 	while True:
 		time.sleep(100000)
