@@ -11,7 +11,10 @@ import thread
 from lib import dac
 from lib.common import *
 from lib.stream import PointStream
+from lib.system import *
 from lib.shape import Shape
+
+
 
 """
 CONFIGURATION
@@ -143,47 +146,65 @@ def dac_thread():
 			print '- - - - - - - - - - -'
 			traceback.print_tb(sys.exc_info()[2])
 			print "\n"
+
+SHOW = None
+
+class NameAnimation(Animation):
+	"""
+	Loribell's businessname text
+	"""
+	def setup(self):
+		from objs.threshold_logo_filled_trunked import OBJECTS
+		from objs.threshold_logo_filled_trunked import ADD_X
+		from objs.threshold_logo_filled_trunked import ADD_Y
+		from objs.threshold_logo_filled_trunked import MULT_X
+		from objs.threshold_logo_filled_trunked import MULT_Y
+
+		#ps.blankingSamplePts = 12 # TODO TODO TODO
+		#ps.trackingSamplePts = 12 # TODO TODO TODO
+
+		for i in range(len(OBJECTS)):
+			coords = OBJECTS[i]
+
+			# Normalize/fix coordinate system
+			for j in range(len(coords)):
+				c = coords[j]
+				x = math.floor(float(c['x'])*MULT_X) + ADD_X
+				y = math.floor(float(c['y'])*MULT_Y) + ADD_Y
+				coords[j] = {'x': x, 'y': y};
+
+			#if random.randint(0, 1) == 0:
+			#	continue
+
+			OBJECTS[i] = coords
+
+			letter = LbLetter(coords=coords)
+			letter.turn = True if random.randint(0, 1) \
+							else False
+
+			self.objects.append(letter)
+
+			print "Test"
+
 #
 # Start Threads
 #
 
 def main():
+	global SHOW
 	global objs
 	global ps
-
-	# XXX: Insecure!!
-	modname = 'awesome'
-	if len(sys.argv) > 1:
-		modname = sys.argv[1]
-
-	exec "from objs.%s import OBJECTS" % modname
-	exec "from objs.%s import MULT_X, MULT_Y" % modname
-	exec "from objs.%s import ADD_X, ADD_Y" % modname
-
-	for i in range(len(OBJECTS)): #obj in OBJECTS:
-		coords = OBJECTS[i]
-
-		# Normalize/fix coordinate system
-		for j in range(len(coords)):
-			c = coords[j]
-			x = math.floor(float(c['x']) * MULT_X) + ADD_X
-			y = math.floor(float(c['y']) * MULT_Y) + ADD_Y
-			coords[j] = {'x': x, 'y': y};
-
-		#if random.randint(0, 1) == 0:
-		#	continue
-
-		OBJECTS[i] = coords
-
-		letter = LbLetter(coords=coords)
-		letter.turn = True if random.randint(0, 1) else False
-		objs.append(letter)
 
 	ps = PointStream()
 	#ps.showBlanking = True
 	#ps.showTracking = True
 	ps.blankingSamplePts = 12
 	ps.trackingSamplePts = 12
+
+
+	SHOW = Show()
+	anim = NameAnimation()
+	objs = anim.objects
 
 	thread.start_new_thread(dac_thread, ())
 	time.sleep(1.0)
