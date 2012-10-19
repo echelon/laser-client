@@ -15,6 +15,10 @@ from lib.importObj import importObj
 
 from objects import *
 
+"""
+OBJS FROM SVG
+"""
+
 class LogoAnimation(Animation):
 	"""
 	Loribell's Logo
@@ -90,9 +94,6 @@ class LogoAnimation(Animation):
 		for obj in self.objects:
 			obj.theta = theta
 
-
-
-
 class NameAnimation(Animation):
 	"""
 	Loribell's businessname text
@@ -119,12 +120,9 @@ class NameAnimation(Animation):
 		for i in range(len(objCoords)):
 			coords = objCoords[i]
 
-			letter = LbLetter(coords=coords)
-			letter.turn = True if random.randint(0, 1) \
-							else False
-
-			self.objects.append(letter)
-
+			obj = SvgPath(coords=coords)
+			obj.jitter = False
+			self.objects.append(obj)
 
 	def animThreadFunc(self):
 		scale = self.scale
@@ -160,9 +158,6 @@ class AwesomeAnimation(Animation):
 		self.theta = 1.0
 		self.thetaDirec = True
 
-		#ps.blankingSamplePts = 12 # TODO TODO TODO
-		#ps.trackingSamplePts = 12 # TODO TODO TODO
-
 		objCoords = importObj(OBJECTS, MULT_X, MULT_Y)
 
 		for i in range(len(objCoords)):
@@ -190,4 +185,29 @@ class AwesomeAnimation(Animation):
 
 		for obj in self.objects:
 			obj.theta = theta
+
+"""
+GML
+"""
+
+class HappyAnimation(Animation):
+	"""
+	Happy Anniversary Text
+	"""
+	def setup(self):
+
+		#self.hasAnimationThread = True
+		#self.scale = 1.0
+		#self.theta = 1.0
+		#self.thetaDirec = True
+
+		obj = Graffiti(filename='gml/happy.gml',
+						initTheta = math.pi/2,
+						initMulX = 80000,
+						initMulY = 80000
+		)
+		self.objects.append(obj)
+
+	def animThreadFunc(self):
+		pass
 

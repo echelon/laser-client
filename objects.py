@@ -6,11 +6,89 @@ import sys
 import time
 import thread
 
+# Graffiti Markup Language
+import PyGML
+
 from lib import dac
 from lib.common import *
 from lib.stream import PointStream
 from lib.system import *
 from lib.shape import Shape
+
+class Graffiti(Shape):
+
+	def __init__(self, x = 0, y = 0, r = 0, g = 0, b = 0,
+			filename=None, initTheta=0,
+			initMulX = 30000, initMulY = 30000):
+
+		super(Graffiti, self).__init__(x, y, r, g, b)
+
+		def getGml(fn):
+			f = open(fn, 'r')
+			g = PyGML.GML(f)
+			f.close()
+			return g
+
+		self.drawn = False
+		self.pauseFirst = True
+		self.pauseLast = True
+
+		self.gml = getGml(filename)
+
+		self.theta = 0
+		self.thetaRate = 0
+		self.scale = 1.0
+		self.jitter = True
+
+		# Applied at import only
+		t = initTheta
+
+		# Cache Points
+		self.points = []
+		for stroke in self.gml.iterStrokes():
+			for pt in stroke.iterPoints():
+
+				x = pt.x * initMulX
+				y = pt.y * initMulY
+
+				xx = x
+				yy = y
+
+				x = xx*math.cos(t) - \
+						yy*math.sin(t)
+				y = yy*math.cos(t) + \
+						xx*math.sin(t)
+
+				self.points.append({'x': x, 'y': y})
+
+		# Normalize points to center
+		xsum = 0
+		ysum = 0
+		for c in self.points:
+			xsum += c['x']
+			ysum += c['y']
+
+		xavg = xsum / len(self.points)
+		yavg = ysum / len(self.points)
+
+		for i in range(len(self.points)):
+			self.points[i]['x'] -= xavg
+			self.points[i]['y'] -= yavg
+
+
+	def produce(self):
+		"""
+		Generate the points of the circle.
+		"""
+		r, g, b = (0, 0, 0)
+
+		for pt in self.points:
+			x = pt['x']
+			y = pt['y']
+
+			yield (x, y, CMAX, CMAX, CMAX)
+
+		self.drawn = True
 
 class SvgPath(Shape):
 
@@ -56,20 +134,4 @@ class SvgPath(Shape):
 			yield(int(x), int(y), CMAX, CMAX, CMAX)
 
 		self.drawn = True
-
-class LbLetter(SvgPath):
-	def __init__(self, x=0, y=0, r=0, g=0, b=0, coords=None):
-		super(LbLetter, self).__init__(x, y, r, g, b, coords)
-
-		self.turn = True
-
-	def produce(self):
-		if self.turn or True:
-			return super(LbLetter, self).produce()
-		else:
-			return (0, 0, 0, 0, 0)
-
-		self.turn = not self.turn
-		self.drawn = True
-
 
