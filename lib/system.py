@@ -33,6 +33,10 @@ class Show(object):
 		for obj in anim.objects:
 			self.stream.objects.append(obj)
 
+		# Switch stream parameters
+		self.stream.blankingSamplePts = anim.blankingSamplePts
+		self.stream.trackingSamplePts = anim.trackingSamplePts
+
 	def next(self):
 		self._switchBefore()
 		self.curIdx = (self.curIdx+1) % \
@@ -96,6 +100,16 @@ class Animation(object):
 	spawing and shutdown, configuration, etc.
 	"""
 
+	# Scaling animations (defaults)
+	SCALE_MAX = 1.75
+	SCALE_MIN = 0.5
+	SCALE_RATE = 0.1
+
+	# Tilting animations - oscillating theta (defaults)
+	TILT_THETA_MAX = 0.4
+	TILT_THETA_MIN = -0.4
+	TILT_THETA_RATE = 0.05
+
 	def __init__(self):
 		# Frames *OR* objects, I suppose? 
 		# Figure it out later. Depends on what PointStr 
@@ -109,6 +123,9 @@ class Animation(object):
 		self.hasAnimationThread = False
 		self.animationSleep = 0.05
 		self._doRunThread = True # To turn on/off
+
+		self.blankingSamplePts = 12
+		self.trackingSamplePts = 12
 
 		self.setup()
 

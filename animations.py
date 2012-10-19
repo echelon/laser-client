@@ -11,44 +11,113 @@ from lib.common import *
 from lib.stream import PointStream
 from lib.system import *
 from lib.shape import Shape
+from lib.importObj import importObj
 
 from objects import *
 
-class NameAnimation(Animation):
-	SCALE_MAX = 1.5
-	SCALE_MIN = 0.5
+class LogoAnimation(Animation):
+	"""
+	Loribell's Logo
+	"""
 
+	SCALE_MAX = 1.75
+	SCALE_MIN = 0.5
+	SCALE_RATE = 0.1
+
+	TILT_THETA_MAX = 1.5
+	TILT_THETA_MIN = -1.5
+	TILT_THETA_RATE = 0.1
+
+	def setup(self):
+		from objs.threshold_ice import OBJECTS
+		from objs.threshold_ice import MULT_X
+		from objs.threshold_ice import MULT_Y
+
+		self.hasAnimationThread = True
+		self.scale = 1.0
+		self.scaleDirec = True
+		self.theta = 1.0
+		self.thetaDirec = True
+
+		self.blankingSamplePts = 50
+		self.trackingSamplePts = 50
+
+		objCoords = importObj(OBJECTS, MULT_X, MULT_Y)
+
+		for i in range(len(objCoords)):
+			coords = objCoords[i]
+
+			obj = SvgPath(coords=coords)
+			obj.jitter = False
+			self.objects.append(obj)
+
+
+	def animThreadFunc(self):
+		scale = self.scale
+		if self.scaleDirec:
+			scale += self.SCALE_RATE
+		else:
+			scale -= self.SCALE_RATE
+
+		if scale <= self.SCALE_MIN:
+			scale = self.SCALE_MIN
+			self.scaleDirec = True
+
+		elif scale >= self.SCALE_MAX:
+			scale = self.SCALE_MAX
+			self.scaleDirec = False
+
+		self.scale = scale
+
+		for obj in self.objects:
+			obj.scale = scale
+
+		theta = self.theta
+		if self.thetaDirec:
+			theta += self.TILT_THETA_RATE
+		else:
+			theta -= self.TILT_THETA_RATE
+
+		if theta <= self.TILT_THETA_MIN:
+			theta = self.TILT_THETA_MIN
+			self.thetaDirec = True
+		elif theta >= self.TILT_THETA_MAX:
+			theta = self.TILT_THETA_MAX
+			self.thetaDirec = False
+
+		self.theta = theta
+
+		for obj in self.objects:
+			obj.theta = theta
+
+
+
+
+class NameAnimation(Animation):
 	"""
 	Loribell's businessname text
 	"""
+
+	SCALE_MAX = 1.75
+	SCALE_MIN = 0.5
+	SCALE_RATE = 0.1
+
 	def setup(self):
+		from objs.threshold_logo_filled_trunked import OBJECTS
+		from objs.threshold_logo_filled_trunked import MULT_X
+		from objs.threshold_logo_filled_trunked import MULT_Y
+
 		self.hasAnimationThread = True
 		self.scale = 1.0
 		self.scaleDirec = True
 
-		from objs.threshold_logo_filled_trunked import OBJECTS
-		from objs.threshold_logo_filled_trunked import ADD_X
-		from objs.threshold_logo_filled_trunked import ADD_Y
-		from objs.threshold_logo_filled_trunked import MULT_X
-		from objs.threshold_logo_filled_trunked import MULT_Y
+		self.blankingSamplePts = 12
+		self.trackingSamplePts = 12
 
-		#ps.blankingSamplePts = 12 # TODO TODO TODO
-		#ps.trackingSamplePts = 12 # TODO TODO TODO
+		objCoords = importObj(OBJECTS, MULT_X, MULT_Y)
 
-		for i in range(len(OBJECTS)):
-			coords = OBJECTS[i]
-
-			# Normalize/fix coordinate system
-			for j in range(len(coords)):
-				c = coords[j]
-				x = math.floor(float(c['x'])*MULT_X) + ADD_X
-				y = math.floor(float(c['y'])*MULT_Y) + ADD_Y
-				coords[j] = {'x': x, 'y': y};
-
-			#if random.randint(0, 1) == 0:
-			#	continue
-
-			OBJECTS[i] = coords
+		for i in range(len(objCoords)):
+			coords = objCoords[i]
 
 			letter = LbLetter(coords=coords)
 			letter.turn = True if random.randint(0, 1) \
@@ -60,9 +129,9 @@ class NameAnimation(Animation):
 	def animThreadFunc(self):
 		scale = self.scale
 		if self.scaleDirec:
-			scale += 0.05
+			scale += NameAnimation.SCALE_RATE
 		else:
-			scale -= 0.05
+			scale -= NameAnimation.SCALE_RATE
 
 		if scale <= NameAnimation.SCALE_MIN:
 			scale = NameAnimation.SCALE_MIN
@@ -83,26 +152,42 @@ class AwesomeAnimation(Animation):
 	"""
 	def setup(self):
 		from objs.awesome import OBJECTS
-		from objs.awesome import ADD_X
-		from objs.awesome import ADD_Y
 		from objs.awesome import MULT_X
 		from objs.awesome import MULT_Y
+
+		self.hasAnimationThread = True
+		self.scale = 1.0
+		self.theta = 1.0
+		self.thetaDirec = True
 
 		#ps.blankingSamplePts = 12 # TODO TODO TODO
 		#ps.trackingSamplePts = 12 # TODO TODO TODO
 
-		for i in range(len(OBJECTS)):
-			coords = OBJECTS[i]
+		objCoords = importObj(OBJECTS, MULT_X, MULT_Y)
 
-			# Normalize/fix coordinate system
-			for j in range(len(coords)):
-				c = coords[j]
-				x = math.floor(float(c['x'])*MULT_X) + ADD_X
-				y = math.floor(float(c['y'])*MULT_Y) + ADD_Y
-				coords[j] = {'x': x, 'y': y};
+		for i in range(len(objCoords)):
+			coords = objCoords[i]
 
-			OBJECTS[i] = coords
 			obj = SvgPath(coords=coords)
+			obj.jitter = False
 			self.objects.append(obj)
 
+	def animThreadFunc(self):
+		theta = self.theta
+		if self.thetaDirec:
+			theta += self.TILT_THETA_RATE
+		else:
+			theta -= self.TILT_THETA_RATE
+
+		if theta <= self.TILT_THETA_MIN:
+			theta = self.TILT_THETA_MIN
+			self.thetaDirec = True
+		elif theta >= self.TILT_THETA_MAX:
+			theta = self.TILT_THETA_MAX
+			self.thetaDirec = False
+
+		self.theta = theta
+
+		for obj in self.objects:
+			obj.theta = theta
 

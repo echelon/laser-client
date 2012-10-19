@@ -22,11 +22,10 @@ class SvgPath(Shape):
 		self.pauseFirst = True
 		self.pauseLast = True
 
-		self.theta = 0
-		self.thetaRate = 0
-
 		self.coords = coords
 
+		self.theta = 0
+		self.thetaRate = 0
 		self.scale = 1.0
 		self.jitter = True
 
@@ -39,8 +38,20 @@ class SvgPath(Shape):
 		for c in self.coords:
 			if self.jitter and random.randint(0, 2) == 0:
 				continue
+
+			# Scale
 			x = c['x'] * self.scale;
 			y = c['y'] * self.scale;
+
+			# Rotate
+			xx = x
+			yy = y
+			x = xx*math.cos(self.theta) - yy*math.sin(self.theta)
+			y = yy*math.cos(self.theta) + xx*math.sin(self.theta)
+
+			# Translate
+			x += self.x
+			y += self.y
 
 			yield(int(x), int(y), CMAX, CMAX, CMAX)
 

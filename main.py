@@ -53,6 +53,7 @@ def main():
 	SHOW.stream = ps
 
 	SHOW.animations.append(NameAnimation())
+	SHOW.animations.append(LogoAnimation())
 	SHOW.animations.append(AwesomeAnimation())
 
 	SHOW.next()
