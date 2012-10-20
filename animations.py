@@ -226,20 +226,37 @@ class GmlAnimation(Animation):
 Simple Objects
 """
 class BouncingBall(Animation):
+	def __init__(self, numBalls=4):
+		self.numBalls = numBalls
+
 	def setup(self):
 		self.hasAnimationThread = True
 		self.scale = 1.0
 		self.theta = 1.0
 		self.thetaDirec = True
 
-		obj = Circle()
-		self.objects.append(obj)
+		self.trackData = [] # Ball velocities, etc.
 
-		self.xAdd = 1000
-		self.yAdd = 1000
+		for i in range(self.numBalls):
+			r = CMAX
+			g = CMAX
+			b = CMAX
+			if i % 3 == 0:
+				g = 0
+				b = CMAX
+			elif i % 3 == 1:
+				g = CMAX
+				b = 0
 
-		self.xDirec = 0
-		self.yDirec = 0
+			obj = Circle(r=r, g=g, b=b)
+			self.objects.append(obj)
+
+			self.trackData.append({
+				'xAdd': 1000,
+				'yAdd': 1000,
+				'xDirec': 0,
+				'yDirec': 0,
+			})
 
 	def animThreadFunc(self):
 		MAX_X = 14000
@@ -248,28 +265,30 @@ class BouncingBall(Animation):
 		MAX_Y = 7000
 		MIN_Y = -7000
 
-		obj = self.objects[0]
+		for i in range(len(self.numBalls)):
+			obj = self.objects[i]
+			t = self.trackData[i]
 
-		if obj.x > MAX_X:
-			self.xDirec = 0
-			self.xAdd = random.randint(500, 1000)
-		elif obj.x < MIN_X:
-			self.xDirec = 1
-			self.xAdd = random.randint(500, 1000)
-		if obj.y > MAX_Y:
-			self.yDirec = 0
-			self.yAdd = random.randint(500, 1000)
-		elif obj.y < MIN_Y:
-			self.yDirec = 1
-			self.yAdd = random.randint(500, 1000)
+			if obj.x > MAX_X:
+				t['xDirec'] = 0
+				t['xAdd'] = random.randint(500, 1000)
+			elif obj.x < MIN_X:
+				t['xDirec'] = 1
+				t['xAdd'] = random.randint(500, 1000)
+			if obj.y > MAX_Y:
+				t['yDirec'] = 0
+				t['yAdd'] = random.randint(500, 1000)
+			elif obj.y < MIN_Y:
+				t['yDirec'] = 1
+				t['yAdd'] = random.randint(500, 1000)
 
-		if self.xDirec:
-			obj.x += self.xAdd
-		else:
-			obj.x -= self.xAdd
+			if t['xDirec']:
+				obj.x += t['xAdd']
+			else:
+				obj.x -= t['xAdd']
 
-		if self.yDirec:
-			obj.y += self.yAdd
-		else:
-			obj.y -= self.yAdd
+			if t['yDirec']:
+				obj.y += t['yAdd']
+			else:
+				obj.y -= t['yAdd']
 
