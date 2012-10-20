@@ -137,3 +137,33 @@ class SvgPath(Shape):
 
 		self.drawn = True
 
+
+class Circle(Shape):
+	def __init__(self, x = 0, y = 0,
+				r = CMAX, g = 0, b = CMAX,
+				radius = 8200):
+
+		super(Circle, self).__init__(x, y, r, g, b)
+
+		self.drawn = False
+		self.pauseFirst = True
+		self.pauseLast = True
+
+		self.theta = 0
+		self.thetaRate = 0
+
+		self.radius = radius
+
+	def produce(self):
+		"""
+		Generate the points of the circle.
+		"""
+		r, g, b = (0, 0, 0)
+
+		for i in xrange(0, 40, 1):
+			i = float(i) / 40 * 2 * math.pi
+			x = int(math.cos(i) * self.radius) + self.x
+			y = int(math.sin(i) * self.radius) + self.y
+			yield (x, y, self.r, self.g, self.b)
+
+		self.drawn = True

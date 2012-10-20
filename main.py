@@ -56,6 +56,7 @@ def main():
 
 	#SHOW.animations.append(LogoAnimation())
 	SHOW.animations.append(nameAnim)
+	SHOW.animations.append(BouncingBall())
 	SHOW.animations.append(GmlAnimation('gml/happy.gml',
 		mul=20000))
 	SHOW.animations.append(nameAnim)

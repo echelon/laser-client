@@ -222,3 +222,53 @@ class GmlAnimation(Animation):
 	def animThreadFunc(self):
 		pass
 
+"""
+Simple Objects
+"""
+class BouncingBall(Animation):
+	def setup(self):
+		self.hasAnimationThread = True
+		self.scale = 1.0
+		self.theta = 1.0
+		self.thetaDirec = True
+
+		obj = Circle()
+		self.objects.append(obj)
+
+	def animThreadFunc(self):
+		MAX_X = 20000
+		MIN_X = -20000
+		MAX_Y = 20000
+		MIN_Y = -20000
+
+		xDirec = 0
+		yDirec = 0
+
+		xAdd = 500
+		yAdd = 500
+
+		obj = self.objects[0]
+
+		if obj.x > MAX_X:
+			xDirec = 0
+			xAdd = random.randint(100, 1000)
+		elif obj.x < MIN_X:
+			xDirec = 1
+			xAdd = random.randint(100, 1000)
+		if obj.y > MAX_Y:
+			yDirec = 0
+			yAdd = random.randint(100, 1000)
+		elif obj.y < MIN_Y:
+			yDirec = 1
+			yAdd = random.randint(100, 1000)
+
+		if xDirec:
+			obj.x += xAdd
+		else:
+			obj.x -= xAdd
+
+		if yDirec:
+			obj.y += yAdd
+		else:
+			obj.y -= yAdd
+
