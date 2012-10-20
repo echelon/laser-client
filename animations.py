@@ -228,6 +228,7 @@ Simple Objects
 class BouncingBall(Animation):
 	def __init__(self, numBalls=4):
 		self.numBalls = numBalls
+		super(BouncingBall, self).__init__()
 
 	def setup(self):
 		self.hasAnimationThread = True
@@ -252,10 +253,10 @@ class BouncingBall(Animation):
 			self.objects.append(obj)
 
 			self.trackData.append({
-				'xAdd': 1000,
-				'yAdd': 1000,
-				'xDirec': 0,
-				'yDirec': 0,
+				'xAdd': random.randint(500, 1000),
+				'yAdd': random.randint(500, 1000),
+				'xDirec': random.randint(0, 1),
+				'yDirec': random.randint(0, 1),
 			})
 
 	def animThreadFunc(self):
@@ -265,7 +266,7 @@ class BouncingBall(Animation):
 		MAX_Y = 7000
 		MIN_Y = -7000
 
-		for i in range(len(self.numBalls)):
+		for i in range(self.numBalls):
 			obj = self.objects[i]
 			t = self.trackData[i]
 

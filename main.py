@@ -53,17 +53,18 @@ def main():
 	SHOW.stream = ps
 
 	nameAnim = NameAnimation()
-	ballAnim = BouncingBall()
+	ballAnim1 = BouncingBall(numBalls=1)
+	ballAnim4 = BouncingBall(numBalls=4)
 
 	#SHOW.animations.append(LogoAnimation())
 	SHOW.animations.append(nameAnim)
-	SHOW.animations.append(ballAnim)
+	SHOW.animations.append(ballAnim1)
 	SHOW.animations.append(GmlAnimation('gml/happy.gml',
 		mul=20000))
 	SHOW.animations.append(nameAnim)
 	SHOW.animations.append(GmlAnimation('gml/2years.gml',
 		mul=20000))
-	SHOW.animations.append(ballAnim)
+	SHOW.animations.append(ballAnim4)
 	SHOW.animations.append(nameAnim)
 	SHOW.animations.append(AwesomeAnimation())
 
