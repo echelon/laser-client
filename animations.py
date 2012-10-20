@@ -235,40 +235,41 @@ class BouncingBall(Animation):
 		obj = Circle()
 		self.objects.append(obj)
 
+		self.xAdd = 1000
+		self.yAdd = 1000
+
+		self.xDirec = 0
+		self.yDirec = 0
+
 	def animThreadFunc(self):
-		MAX_X = 20000
-		MIN_X = -20000
-		MAX_Y = 20000
-		MIN_Y = -20000
+		MAX_X = 14000
+		MIN_X = -14000
 
-		xDirec = 0
-		yDirec = 0
-
-		xAdd = 500
-		yAdd = 500
+		MAX_Y = 7000
+		MIN_Y = -7000
 
 		obj = self.objects[0]
 
 		if obj.x > MAX_X:
-			xDirec = 0
-			xAdd = random.randint(100, 1000)
+			self.xDirec = 0
+			self.xAdd = random.randint(500, 1000)
 		elif obj.x < MIN_X:
-			xDirec = 1
-			xAdd = random.randint(100, 1000)
+			self.xDirec = 1
+			self.xAdd = random.randint(500, 1000)
 		if obj.y > MAX_Y:
-			yDirec = 0
-			yAdd = random.randint(100, 1000)
+			self.yDirec = 0
+			self.yAdd = random.randint(500, 1000)
 		elif obj.y < MIN_Y:
-			yDirec = 1
-			yAdd = random.randint(100, 1000)
+			self.yDirec = 1
+			self.yAdd = random.randint(500, 1000)
 
-		if xDirec:
-			obj.x += xAdd
+		if self.xDirec:
+			obj.x += self.xAdd
 		else:
-			obj.x -= xAdd
+			obj.x -= self.xAdd
 
-		if yDirec:
-			obj.y += yAdd
+		if self.yDirec:
+			obj.y += self.yAdd
 		else:
-			obj.y -= yAdd
+			obj.y -= self.yAdd
 

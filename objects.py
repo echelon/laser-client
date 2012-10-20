@@ -140,8 +140,8 @@ class SvgPath(Shape):
 
 class Circle(Shape):
 	def __init__(self, x = 0, y = 0,
-				r = CMAX, g = 0, b = CMAX,
-				radius = 8200):
+				r = CMAX, g = CMAX, b = CMAX,
+				radius = 82):
 
 		super(Circle, self).__init__(x, y, r, g, b)
 
