@@ -59,9 +59,16 @@ def main():
 	#SHOW.animations.append(LogoAnimation())
 	SHOW.animations.append(nameAnim)
 	SHOW.animations.append(ballAnim1)
+	SHOW.animations.append(GmlAnimation('gml/haveyoutried.gml',
+		mul=20000))
+	SHOW.animations.append(GmlAnimation('gml/frozencustard.gml',
+		mul=20000))
+	SHOW.animations.append(nameAnim)
 	SHOW.animations.append(GmlAnimation('gml/happy.gml',
 		mul=20000))
 	SHOW.animations.append(nameAnim)
+	SHOW.animations.append(GmlAnimation('gml/thanksfor.gml',
+		mul=20000))
 	SHOW.animations.append(GmlAnimation('gml/2years.gml',
 		mul=20000))
 	SHOW.animations.append(ballAnim4)
