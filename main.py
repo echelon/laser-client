@@ -41,7 +41,7 @@ def main():
 		global SHOW
 		while True:
 			SHOW.next()
-			time.sleep(6.0)
+			time.sleep(3.0)
 
 	ps = PointStream()
 	#ps.showBlanking = True
@@ -54,50 +54,35 @@ def main():
 	SHOW = Show()
 	SHOW.stream = ps
 
-	# LOGO
-	#partyAnim = PartyAnimation()
-
-	# SVG SHAPES
-	#arrowAnim = ArrowAnimation()
-	batAnim = BatAnimation()
-	ghostAnim = GhostAnimation()
-	awesomeAnim = AwesomeAnimation()
-	costumesAnim = CostumesAnimation()
-
-	# GML
-	helloAnim = GmlAnimation('gml/hello.gml', mul=50000)
-
-	# MISC
-	#ballAnim1 = BouncingBall(numBalls=1)
+	#helloAnim = GmlAnimation('gml/hello.gml', mul=50000)
 	#ballAnim4 = BouncingBall(numBalls=4)
-	#ballAnim10 = BouncingBall(numBalls=10)
 	#squareAnim = SquareAnimation()
 
-	"""
-	SHOW.animations.append(SquareAnimation())
-	SHOW.animations.append(BouncingBall(numBalls=20))
-	SHOW.animations.append(ghostAnim)
-	SHOW.animations.append(awesomeAnim)
-	SHOW.animations.append(batAnim)
-	SHOW.animations.append(HexAnimation())
-	SHOW.animations.append(BouncingBall(numBalls=6))
-	#SHOW.animations.append(helloAnim)
-	SHOW.animations.append(ArrowAnimation())
-	"""
-	SHOW.animations.append(costumesAnim)
+	# LD -- 5
+	SHOW.animations.append(ObjectAnimation('luckydraw'))
+	SHOW.animations.append(ObjectAnimation('cardAce',
+		init = {
+			'theta': 0.1
+		},
+		anim = {
+			'scale_x_mag': 1.0,
+			'scale_x_rate': 0.006
+		}
+	))
+	SHOW.animations.append(ObjectAnimation('tattoo'))
+	SHOW.animations.append(ObjectAnimation('piercing'))
+	SHOW.animations.append(ObjectAnimation('ldlogo',
+		anim = {
+			'rotate': True,
+			'rotateRate': 0.002,
+		}
+	))
 
-	"""
-	SHOW.animations.append(partyAnim)
-	SHOW.animations.append(costumesAnim)
-	SHOW.animations.append(partyAnim)
-	SHOW.animations.append(arrowAnim)
-	SHOW.animations.append(partyAnim)
-
-	SHOW.animations.append(partyAnim)
-	SHOW.animations.append(partyAnim)
-	SHOW.animations.append(arrowAnim)
-	SHOW.animations.append(partyAnim)
-	"""
+	# MAC -- 5
+	SHOW.animations.append(ObjectAnimation('maccrackens', b=0))
+	SHOW.animations.append(ShamrockAnimation())
+	SHOW.animations.append(ObjectAnimation('craftbeer', b=0))
+	SHOW.animations.append(ObjectAnimation('celticpub', b=0))
 
 	SHOW.next()
 	SHOW.prev()

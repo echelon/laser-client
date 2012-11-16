@@ -6,6 +6,7 @@ import sys
 import time
 import thread
 import copy
+from datetime import datetime
 
 from lib import dac
 from lib.common import *
@@ -19,6 +20,126 @@ from objects import *
 """
 OBJS FROM SVG
 """
+
+class ObjectAnimation(Animation):
+	"""
+	Imports a script containing points.
+	VERY crude.
+	"""
+
+	def __init__(self, objName, init = None, anim = None,
+			r=CMAX, g=CMAX, b=CMAX):
+
+		self.objName = objName
+
+		self.initParams = init
+		self.animParams = anim
+
+		self.r = r
+		self.g = g
+		self.b = b
+
+		self.timeLast = datetime.now() # For timedelta
+
+		self.scaleX = 1.0
+		self.scaleY = 1.0
+		self.scaleDirecX = True
+		self.scaleDirecY = True
+
+		super(ObjectAnimation, self).__init__()
+
+	def setup(self):
+		# FIXME: Definitely a better way to do this...
+		exec "from objs.%s import OBJECTS" % self.objName
+		exec "from objs.%s import MULT_X" % self.objName
+		exec "from objs.%s import MULT_Y" % self.objName
+
+		self.hasAnimationThread = False if not \
+				self.animParams else True
+
+		self.blankingSamplePts = 7
+		self.trackingSamplePts = 15
+
+		objCoords = importObj(OBJECTS, MULT_X, MULT_Y)
+
+		ip = self.initParams
+
+		for i in range(len(objCoords)):
+			coords = objCoords[i]
+
+			obj = SvgPath(coords=coords,
+					r=self.r, g=self.g, b=self.b)
+			obj.jitter = False
+			obj.skip = 3
+
+			if ip and 'theta' in ip:
+				obj.theta = ip['theta']
+
+			#obj.drawEvery = 4
+			#obj.drawIndex = i % obj.drawEvery
+
+			self.objects.append(obj)
+
+	def animThreadFunc(self):
+		ap = self.animParams
+
+		if not self.timeLast:
+			self.timeLast = datetime.now()
+
+		last = self.timeLast
+		now = datetime.now()
+
+		delta = now - last
+		delta = delta.microseconds / float(10**3)
+
+		if 'scale_x_mag' in ap:
+			scaleX = self.scaleX
+			if self.scaleDirecX:
+				scaleX += ap['scale_x_rate'] * delta
+			else:
+				scaleX -= ap['scale_x_rate'] * delta
+
+			if scaleX <= -ap['scale_x_mag']:
+				scaleX = -ap['scale_x_mag']
+				self.scaleDirecX = True
+
+			elif scaleX >= ap['scale_x_mag']:
+				scaleX = ap['scale_x_mag']
+				self.scaleDirecX = False
+
+			self.scaleX = scaleX
+
+			for obj in self.objects:
+				obj.scaleX = scaleX
+
+		if 'rotate' in ap and ap['rotate']:
+
+			for obj in self.objects:
+				obj.theta += ap['rotateRate'] * delta
+
+			"""
+			obj.theta += obj.thetaVel
+			obj.scale += obj.scaleVel
+
+			if obj.theta >= self.TILT_THETA_MAX:
+				obj.theta = self.TILT_THETA_MAX
+				obj.thetaVel *= -1
+			elif obj.theta <= -self.TILT_THETA_MAX:
+				obj.theta = -self.TILT_THETA_MAX
+				obj.thetaVel *= -1
+
+			if obj.scale >= self.SCALE_MAX:
+				obj.scale = self.SCALE_MAX
+				#obj.scaleVel = -self.SCALE_RATE
+				obj.scaleVel *= -1
+			elif obj.scale <= self.SCALE_MIN:
+				obj.scale = self.SCALE_MIN
+				#obj.scaleVel = self.SCALE_RATE
+				obj.scaleVel *= -1
+			"""
+
+		self.timeLast = datetime.now()
+
 
 class PartyAnimation(Animation):
 	SCALE_MAX = 2.55
@@ -196,6 +317,113 @@ class BatAnimation(Animation):
 				obj.g = 0
 			elif i % 4 == 1:
 				obj.b = 0
+
+			self.objects.append(obj)
+
+	def animThreadFunc(self):
+		for obj in self.objects:
+			obj.x += obj.xVel
+			obj.y += obj.yVel
+
+			if obj.x >= self.EDGE_X:
+				obj.x = self.EDGE_X
+				obj.xVel = -random.randint(self.VEL_MAG_MIN,
+										self.VEL_MAG_MAX)
+			elif obj.x <= -self.EDGE_X:
+				obj.x = -self.EDGE_X
+				obj.xVel = random.randint(self.VEL_MAG_MIN,
+										self.VEL_MAG_MAX)
+
+			if obj.y >= self.EDGE_Y:
+				obj.y = self.EDGE_Y
+				obj.yVel = -random.randint(self.VEL_MAG_MIN,
+										self.VEL_MAG_MAX)
+			elif obj.y <= self.EDGE_Y_MIN:
+				obj.y = self.EDGE_Y_MIN
+				obj.yVel = random.randint(self.VEL_MAG_MIN,
+										self.VEL_MAG_MAX)
+
+			obj.theta += obj.thetaVel
+			obj.scale += obj.scaleVel
+
+			if obj.theta >= self.TILT_THETA_MAX:
+				obj.theta = self.TILT_THETA_MAX
+				obj.thetaVel *= -1
+			elif obj.theta <= -self.TILT_THETA_MAX:
+				obj.theta = -self.TILT_THETA_MAX
+				obj.thetaVel *= -1
+
+			if obj.scale >= self.SCALE_MAX:
+				obj.scale = self.SCALE_MAX
+				#obj.scaleVel = -self.SCALE_RATE
+				obj.scaleVel *= -1
+			elif obj.scale <= self.SCALE_MIN:
+				obj.scale = self.SCALE_MIN
+				#obj.scaleVel = self.SCALE_RATE
+				obj.scaleVel *= -1
+
+class ShamrockAnimation(Animation):
+
+	SCALE_MAX = 3.0
+	SCALE_MIN = 1.5
+	SCALE_RATE = 0.01
+
+	TILT_THETA_MAX = 0.4
+	TILT_THETA_MIN = -0.4
+	TILT_THETA_RATE = 0.01
+
+	EDGE_X = 27000
+	EDGE_Y = 10000
+	EDGE_Y_MIN = -1000
+
+	VEL_MAG_MIN = 200
+	VEL_MAG_MAX = 500
+
+	def setup(self):
+
+		def importBat():
+			from objs.shamrock import OBJECTS
+			from objs.shamrock import MULT_X
+			from objs.shamrock import MULT_Y
+
+			objCoords = importObj(OBJECTS,
+					MULT_X/3.0, MULT_Y/3.0)
+
+			coords = objCoords[0]
+
+			obj = SvgPath(coords=coords)
+			obj.jitter = False
+			return obj
+
+
+		self.hasAnimationThread = True
+		self.scale = self.SCALE_MIN
+		self.scaleDirec = True
+		self.theta = 1.0
+		self.thetaDirec = True
+
+		self.blankingSamplePts = 10
+		self.trackingSamplePts = 10
+
+		bat = importBat()
+		for i in range(3):
+			obj = copy.copy(bat)
+			obj.x = random.randint(-5000, 5000)
+			obj.y = random.randint(-5000, 5000)
+
+			obj.xVel = random.randint(self.VEL_MAG_MIN,
+					self.VEL_MAG_MAX)
+			obj.xVel *= 1 if random.randint(0, 1) else -1
+
+			obj.yVel = random.randint(self.VEL_MAG_MIN,
+					self.VEL_MAG_MAX)
+			obj.yVel *= 1 if random.randint(0, 1) else -1
+
+			obj.scale = random.randint(15, 35) / float(10)
+			obj.scaleVel = random.randint(1, 6) / float(100)
+			obj.thetaVel = random.randint(3, 6) / float(100)
+
+			obj.b = 0
 
 			self.objects.append(obj)
 

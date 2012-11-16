@@ -108,6 +108,8 @@ class SvgPath(Shape):
 		self.theta = 0
 		self.thetaRate = 0
 		self.scale = 1.0
+		self.scaleX = None
+		self.scaleY = None
 		self.jitter = True
 
 		self.drawEvery = 1
@@ -148,6 +150,13 @@ class SvgPath(Shape):
 			# Scale
 			x = c['x'] * self.scale
 			y = c['y'] * self.scale
+
+			# Dimension independant scales
+			if self.scaleX:
+				x *= self.scaleX
+
+			if self.scaleY:
+				y *= self.scaleY
 
 			# Rotate
 			xx = x
