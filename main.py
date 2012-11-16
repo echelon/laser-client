@@ -41,39 +41,63 @@ def main():
 		global SHOW
 		while True:
 			SHOW.next()
-			time.sleep(7.0)
+			time.sleep(6.0)
 
 	ps = PointStream()
 	#ps.showBlanking = True
 	#ps.showTracking = True
 	ps.blankingSamplePts = 12
 	ps.trackingSamplePts = 12
+	ps.scale = 0.6
+	#ps.rotate = math.pi / 4
 
 	SHOW = Show()
 	SHOW.stream = ps
 
-	nameAnim = NameAnimation()
-	ballAnim1 = BouncingBall(numBalls=1)
-	ballAnim4 = BouncingBall(numBalls=4)
+	# LOGO
+	#partyAnim = PartyAnimation()
 
-	#SHOW.animations.append(LogoAnimation())
-	SHOW.animations.append(nameAnim)
-	SHOW.animations.append(ballAnim1)
-	SHOW.animations.append(GmlAnimation('gml/haveyoutried.gml',
-		mul=20000))
-	SHOW.animations.append(GmlAnimation('gml/frozencustard.gml',
-		mul=20000))
-	SHOW.animations.append(nameAnim)
-	SHOW.animations.append(GmlAnimation('gml/happy.gml',
-		mul=20000))
-	SHOW.animations.append(nameAnim)
-	SHOW.animations.append(GmlAnimation('gml/thanksfor.gml',
-		mul=20000))
-	SHOW.animations.append(GmlAnimation('gml/2years.gml',
-		mul=20000))
-	SHOW.animations.append(ballAnim4)
-	SHOW.animations.append(nameAnim)
-	SHOW.animations.append(AwesomeAnimation())
+	# SVG SHAPES
+	#arrowAnim = ArrowAnimation()
+	batAnim = BatAnimation()
+	ghostAnim = GhostAnimation()
+	awesomeAnim = AwesomeAnimation()
+	costumesAnim = CostumesAnimation()
+
+	# GML
+	helloAnim = GmlAnimation('gml/hello.gml', mul=50000)
+
+	# MISC
+	#ballAnim1 = BouncingBall(numBalls=1)
+	#ballAnim4 = BouncingBall(numBalls=4)
+	#ballAnim10 = BouncingBall(numBalls=10)
+	#squareAnim = SquareAnimation()
+
+	"""
+	SHOW.animations.append(SquareAnimation())
+	SHOW.animations.append(BouncingBall(numBalls=20))
+	SHOW.animations.append(ghostAnim)
+	SHOW.animations.append(awesomeAnim)
+	SHOW.animations.append(batAnim)
+	SHOW.animations.append(HexAnimation())
+	SHOW.animations.append(BouncingBall(numBalls=6))
+	#SHOW.animations.append(helloAnim)
+	SHOW.animations.append(ArrowAnimation())
+	"""
+	SHOW.animations.append(costumesAnim)
+
+	"""
+	SHOW.animations.append(partyAnim)
+	SHOW.animations.append(costumesAnim)
+	SHOW.animations.append(partyAnim)
+	SHOW.animations.append(arrowAnim)
+	SHOW.animations.append(partyAnim)
+
+	SHOW.animations.append(partyAnim)
+	SHOW.animations.append(partyAnim)
+	SHOW.animations.append(arrowAnim)
+	SHOW.animations.append(partyAnim)
+	"""
 
 	SHOW.next()
 	SHOW.prev()

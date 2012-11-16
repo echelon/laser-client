@@ -3,6 +3,7 @@ import thread
 import random
 
 from lib import dac
+import fakedac
 
 class Show(object):
 	"""
@@ -87,6 +88,35 @@ class Show(object):
 					print "\n"
 
 		thread.start_new_thread(t, ())
+
+	def start_testdac_thread(self):
+		"""
+		This is just a test -- it'll just print points and
+		never send to a laser projector.
+		"""
+
+		def t():
+			# TODO: Reoptimize below.
+			# TODO: Does this belong here?
+			# TODO: Where does anything belong?
+			while True:
+				try:
+					d = fakedac.Dac2()
+					d.play_stream(self.stream)
+
+				except KeyboardInterrupt:
+					sys.exit()
+
+				except Exception as e:
+					import sys, traceback
+					print '\n---------------------'
+					print 'DacThread Exception: %s' % e
+					print '- - - - - - - - - - -'
+					traceback.print_tb(sys.exc_info()[2])
+					print "\n"
+
+		thread.start_new_thread(t, ())
+
 
 
 	"""

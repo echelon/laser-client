@@ -4,7 +4,6 @@ ADD_X = -5000
 ADD_Y = 25000
 OBJECTS = [
 
-
 	# OBJECT 
 	[
 		{'x': 325, 'y': 665},
