@@ -60,9 +60,10 @@ class ObjectAnimation(Animation):
 		self.blankingSamplePts = 7
 		self.trackingSamplePts = 15
 
-		objCoords = importObj(OBJECTS, MULT_X, MULT_Y)
-
 		ip = self.initParams
+
+		objCoords = SvgCache.instance().get(self.objName)
+		#objCoords = importObj(OBJECTS, MULT_X, MULT_Y)
 
 		for i in range(len(objCoords)):
 			coords = objCoords[i]
@@ -158,7 +159,6 @@ class ObjectAnimation(Animation):
 				obj.scaleX = scaleX
 				obj.scaleY = scaleY
 
-
 		if 'scale_x_mag' in ap:
 			scaleX = self.scaleX
 			if self.scaleDirecX:
@@ -205,57 +205,6 @@ class ObjectAnimation(Animation):
 				obj.theta += ap['rotateRate'] * delta
 
 		self.timeLast = datetime.now()
-
-
-class PartyAnimation(Animation):
-	SCALE_MAX = 2.55
-	SCALE_MIN = 2.0
-	SCALE_RATE = 0.09
-
-	def setup(self):
-		from objs.party2 import OBJECTS
-		from objs.party2 import MULT_X
-		from objs.party2 import MULT_Y
-
-		self.hasAnimationThread = True
-		self.scale = 1.0
-		self.scaleDirec = True
-
-		self.blankingSamplePts = 7
-		self.trackingSamplePts = 15
-
-		objCoords = importObj(OBJECTS, MULT_X/2.0, MULT_Y/2.0)
-
-		for i in range(len(objCoords)):
-			coords = objCoords[i]
-
-			obj = SvgPath(coords=coords)
-			obj.jitter = False
-			obj.skip = 3
-			#obj.drawEvery = 4
-			#obj.drawIndex = i % obj.drawEvery
-
-			self.objects.append(obj)
-
-	def animThreadFunc(self):
-		scale = self.scale
-		if self.scaleDirec:
-			scale += self.SCALE_RATE
-		else:
-			scale -= self.SCALE_RATE
-
-		if scale <= self.SCALE_MIN:
-			scale = self.SCALE_MIN
-			self.scaleDirec = True
-
-		elif scale >= self.SCALE_MAX:
-			scale = self.SCALE_MAX
-			self.scaleDirec = False
-
-		self.scale = scale
-
-		for obj in self.objects:
-			obj.scale = scale
 
 class SquareAnimation(Animation):
 

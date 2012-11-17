@@ -14,6 +14,7 @@ from lib.common import *
 from lib.stream import PointStream
 from lib.system import *
 from lib.shape import Shape
+from lib.importObj import importObj
 
 """
 Shape systems that import from files, etc.
@@ -92,6 +93,35 @@ class Graffiti(Shape):
 			yield (x, y, CMAX, CMAX, CMAX/4)
 
 		self.drawn = True
+
+class SvgCache(dict):
+
+	_INSTANCE = None
+
+	@classmethod
+	def instance(self):
+		if not SvgCache._INSTANCE:
+			SvgCache._INSTANCE = SvgCache()
+
+		return SvgCache._INSTANCE
+
+	def get(self, k):
+		if k in self:
+			return self[k]
+
+		# FIXME: Definitely a better way to do this...
+		exec "from objs.%s import OBJECTS" % k
+		exec "from objs.%s import MULT_X" % k
+		exec "from objs.%s import MULT_Y" % k
+
+		coordSets = importObj(OBJECTS, MULT_X, MULT_Y)
+		self[k] = coordSets
+
+		return coordSets
+
+	def __setattr__(self, k, v):
+		raise Exception, 'Cannot assign to SvgCache'
+
 
 class SvgPath(Shape):
 
