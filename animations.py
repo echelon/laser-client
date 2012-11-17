@@ -47,6 +47,9 @@ class ObjectAnimation(Animation):
 		self.scaleDirecX = True
 		self.scaleDirecY = True
 
+		self.rotate = 0.0
+		self.rotateDirec = True
+
 		super(ObjectAnimation, self).__init__()
 
 	def setup(self):
@@ -141,6 +144,38 @@ class ObjectAnimation(Animation):
 			for obj in self.objects:
 				obj.scaleX = scaleX
 				obj.scaleY = scaleY
+
+
+		if 'rotate' in ap and ap['rotate']:
+			rotate = self.rotate
+			rotateRate = ap['rotateRate']
+			rotateMax = 0.0
+			rotateMin = 0.0
+
+			if 'rotateMag' in ap:
+				rotateMax = ap['rotateMag']
+				rotateMin = -ap['rotateMag']
+			else:
+				rotateMax = ap['rotateMax']
+				rotateMin = ap['rotateMin']
+
+			if self.rotateDirec:
+				rotate += rotateRate * delta
+			else:
+				rotate -= rotateRate * delta
+
+			if rotate <= rotateMin:
+				rotate = rotateMin
+				self.rotateDirec = True
+			elif rotate >= rotateMax:
+				rotate = rotateMax
+				self.rotateDirec = False
+
+			self.rotate = rotate
+
+			for obj in self.objects:
+				obj.theta = rotate
+
 
 		if 'scale_x_mag' in ap:
 			scaleX = self.scaleX
@@ -364,18 +399,18 @@ class ShamrockAnimation(Animation):
 
 	SCALE_MAX = 3.0
 	SCALE_MIN = 1.5
-	SCALE_RATE = 0.01
+	#SCALE_RATE = 0 #0.00001
 
 	TILT_THETA_MAX = 0.4
 	TILT_THETA_MIN = -0.4
-	TILT_THETA_RATE = 0.01
+	#TILT_THETA_RATE = 0 #0.0001
 
 	EDGE_X = 27000
-	EDGE_Y = 10000
+	EDGE_Y = 27000
 	EDGE_Y_MIN = -1000
 
-	VEL_MAG_MIN = 200
-	VEL_MAG_MAX = 500
+	VEL_MAG_MIN = 3
+	VEL_MAG_MAX = 9
 
 	def setup(self):
 
@@ -393,6 +428,7 @@ class ShamrockAnimation(Animation):
 			obj.jitter = False
 			return obj
 
+		self.timeLast = datetime.now() # For timedelta
 
 		self.hasAnimationThread = True
 		self.scale = self.SCALE_MIN
@@ -418,8 +454,8 @@ class ShamrockAnimation(Animation):
 			obj.yVel *= 1 if random.randint(0, 1) else -1
 
 			obj.scale = random.randint(15, 35) / float(10)
-			obj.scaleVel = random.randint(1, 6) / float(100)
-			obj.thetaVel = random.randint(3, 6) / float(100)
+			obj.scaleVel = random.randint(1, 4) / float(1000)
+			obj.thetaVel = random.randint(1, 3) / float(1000)
 
 			if i % 2 == 0:
 				obj.b = 0
@@ -429,9 +465,19 @@ class ShamrockAnimation(Animation):
 			self.objects.append(obj)
 
 	def animThreadFunc(self):
+
+		if not self.timeLast:
+			self.timeLast = datetime.now()
+
+		last = self.timeLast
+		now = datetime.now()
+
+		delta = now - last
+		delta = delta.microseconds / float(10**3)
+
 		for obj in self.objects:
-			obj.x += obj.xVel
-			obj.y += obj.yVel
+			obj.x += obj.xVel * delta
+			obj.y += obj.yVel * delta
 
 			if obj.x >= self.EDGE_X:
 				obj.x = self.EDGE_X
@@ -451,8 +497,8 @@ class ShamrockAnimation(Animation):
 				obj.yVel = random.randint(self.VEL_MAG_MIN,
 										self.VEL_MAG_MAX)
 
-			obj.theta += obj.thetaVel
-			obj.scale += obj.scaleVel
+			obj.theta += obj.thetaVel * delta
+			obj.scale += obj.scaleVel * delta
 
 			if obj.theta >= self.TILT_THETA_MAX:
 				obj.theta = self.TILT_THETA_MAX
@@ -469,6 +515,8 @@ class ShamrockAnimation(Animation):
 				obj.scale = self.SCALE_MIN
 				#obj.scaleVel = self.SCALE_RATE
 				obj.scaleVel *= -1
+
+		self.timeLast = datetime.now() # For timedelta
 
 class ArrowAnimation(Animation):
 

@@ -39,14 +39,8 @@ Bootstrap it all! Go, go, go!
 # Work on 'craft' slide
 
 def addLD(SHOW):
-	SHOW.animations.append(BouncingCardShapesAnim())
-	#SHOW.animations.append(ObjectAnimation('shapeSpade'))
-	#SHOW.animations.append(ObjectAnimation('shapeHeart'))
-	#SHOW.animations.append(ObjectAnimation('shapeDiamond'))
-	#SHOW.animations.append(ObjectAnimation('shapeClub'))
 	return
-
-
+	SHOW.animations.append(BouncingCardShapesAnim())
 	SHOW.animations.append(ObjectAnimation('luckydraw'))
 	SHOW.animations.append(ObjectAnimation('cardAce',
 		init = {
@@ -67,7 +61,6 @@ def addLD(SHOW):
 	))
 
 def addMC(SHOW):
-	return
 	SHOW.animations.append(
 			ObjectAnimation('maccrackens', b=0,
 		anim = {
@@ -75,15 +68,18 @@ def addMC(SHOW):
 			'scaleRate': 0.001,
 			'scaleMin': 0.5,
 			'scaleMax': 1.6,
-			#'scale_x_mag': 1.0,
-			#'scale_x_rate': 0.001,
-			#'scale_y_mag': 1.0,
-			#'scale_y_rate': 0.004
 		}
 	))
 	SHOW.animations.append(ShamrockAnimation())
 	SHOW.animations.append(
-			ObjectAnimation('craftbeer', b=0))
+			ObjectAnimation('craftbeer', b=0,
+		anim = {
+			'rotate': True,
+			'rotateRate': 0.0006,
+			'rotateMax': 0.3,
+			'rotateMin': -0.3,
+		}
+	))
 	SHOW.animations.append(
 			ObjectAnimation('celticpub', b=0,
 		anim = {
