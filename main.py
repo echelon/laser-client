@@ -39,7 +39,6 @@ Bootstrap it all! Go, go, go!
 # Work on 'craft' slide
 
 def addLD(SHOW):
-	return
 	SHOW.animations.append(BouncingCardShapesAnim())
 	SHOW.animations.append(ObjectAnimation('luckydraw'))
 	SHOW.animations.append(ObjectAnimation('cardAce',
@@ -61,6 +60,7 @@ def addLD(SHOW):
 	))
 
 def addMC(SHOW):
+	return
 	SHOW.animations.append(
 			ObjectAnimation('maccrackens', b=0,
 		anim = {

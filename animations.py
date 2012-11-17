@@ -151,31 +151,37 @@ class ObjectAnimation(Animation):
 			rotateRate = ap['rotateRate']
 			rotateMax = 0.0
 			rotateMin = 0.0
+			rotateLimits = False
 
 			if 'rotateMag' in ap:
+				rotateLimits = True
 				rotateMax = ap['rotateMag']
 				rotateMin = -ap['rotateMag']
-			else:
+			elif 'rotateMin' in ap:
+				rotateLimits = True
 				rotateMax = ap['rotateMax']
 				rotateMin = ap['rotateMin']
 
-			if self.rotateDirec:
+			if not rotateLimits:
 				rotate += rotateRate * delta
-			else:
-				rotate -= rotateRate * delta
 
-			if rotate <= rotateMin:
-				rotate = rotateMin
-				self.rotateDirec = True
-			elif rotate >= rotateMax:
-				rotate = rotateMax
-				self.rotateDirec = False
+			else:
+				if self.rotateDirec:
+					rotate += rotateRate * delta
+				else:
+					rotate -= rotateRate * delta
+
+				if rotate <= rotateMin:
+					rotate = rotateMin
+					self.rotateDirec = True
+				elif rotate >= rotateMax:
+					rotate = rotateMax
+					self.rotateDirec = False
 
 			self.rotate = rotate
 
 			for obj in self.objects:
 				obj.theta = rotate
-
 
 		if 'scale_x_mag' in ap:
 			scaleX = self.scaleX
@@ -216,11 +222,6 @@ class ObjectAnimation(Animation):
 
 			for obj in self.objects:
 				obj.scaleY = scaleY
-
-		if 'rotate' in ap and ap['rotate']:
-
-			for obj in self.objects:
-				obj.theta += ap['rotateRate'] * delta
 
 		self.timeLast = datetime.now()
 
@@ -409,8 +410,8 @@ class ShamrockAnimation(Animation):
 	EDGE_Y = 27000
 	EDGE_Y_MIN = -1000
 
-	VEL_MAG_MIN = 3
-	VEL_MAG_MAX = 9
+	VEL_MAG_MIN = 7
+	VEL_MAG_MAX = 15
 
 	def setup(self):
 
