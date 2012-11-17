@@ -1,7 +1,7 @@
 """
 Svg Shapes -- Classes and functions to make working with
-			  SVG graphics easier. This is going to take a
-			  lot of work to bring to parity to what I
+			  SVG graphics easier. This is going to take
+			  a lot of work to bring to parity to what I
 			  expect, which would be raw SVG files.
 """
 
@@ -22,7 +22,7 @@ from lib.system import *
 from lib.shape import Shape
 from lib.importObj import importObj
 
-def load_svg(name):
+def load_svg(name, skip=3):
 	"""
 	Load a file containing parsed SVG geometry and return
 	an SVG object (with one or more SvgPaths).
@@ -35,7 +35,7 @@ def load_svg(name):
 
 		obj = SvgPath(coords=coords)
 		obj.jitter = False
-		obj.skip = 3
+		obj.skip = skip
 
 		paths.append(obj)
 
@@ -77,6 +77,19 @@ class Svg(Shape):
 
 		self.flipX = False
 		self.flipY = False
+
+	def setScaleIndep(self, x=1.0, y=1.0):
+		self.scaleX = x
+		self.scaleY = y
+
+	def setColor(self, r=CMAX, g=CMAX, b=CMAX):
+		"""
+		Mutuator to set color for all SvgPaths.
+		"""
+		for obj in self.objects:
+			obj.r = r
+			obj.g = g
+			obj.b = b
 
 	def produce(self):
 		"""
@@ -226,7 +239,6 @@ class Svg(Shape):
 
 		self.drawn = True
 
-
 class SvgPath(Shape):
 
 	def __init__(self, x = 0, y = 0,
@@ -314,7 +326,6 @@ class SvgPath(Shape):
 			yield(int(x), int(y), self.r, self.g, self.b)
 
 		self.drawn = True
-
 
 class SvgCache(dict):
 

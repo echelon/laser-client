@@ -604,7 +604,6 @@ class HexAnimation(Animation):
 		for obj in self.objects:
 			obj.theta += self.TILT_THETA_RATE
 
-
 class CostumesAnimation(Animation):
 
 	SCALE_MAX = 4.2
@@ -848,6 +847,132 @@ class AwesomeAnimation(Animation):
 		for obj in self.objects:
 			obj.theta = theta
 
+class BouncingCardShapesAnim(Animation):
+	def __init__(self):
+
+		self.timeLast = datetime.now() # For timedelta
+
+		super(BouncingCardShapesAnim, self).__init__()
+
+	def setup(self):
+		self.hasAnimationThread = True
+		self.scale = 1.0
+		self.theta = 1.0
+		self.thetaDirec = True
+
+		self.trackData = [] # Ball velocities, etc.
+
+		# Pseudo-rotation
+		self.scaleRateX = 0.002
+		self.scaleXs = [-0.5, 0.0, 0.5, 1.0]
+		self.scaleDirecX = [True for i in range(4)]
+
+		self.objects.append(load_svg('shapeHeart'))
+		self.objects.append(load_svg('shapeDiamond'))
+		self.objects.append(load_svg('shapeSpade'))
+		self.objects.append(load_svg('shapeClub'))
+
+		self.objects[0].setColor(b=0)
+		self.objects[1].setColor(b=0)
+		self.objects[2].setColor(g=0)
+		self.objects[3].setColor(g=0)
+
+		self.MIN_VEL = 5
+		self.MAX_VEL = 40
+
+		for i in range(4):
+			r = CMAX
+			g = CMAX
+			b = CMAX
+			if i % 3 == 0:
+				g = 0
+				b = CMAX
+			elif i % 3 == 1:
+				g = CMAX
+				b = 0
+
+			self.objects[i].scale = 0.5
+
+			self.trackData.append({
+				'xAdd': random.randint(self.MIN_VEL, self.MAX_VEL),
+				'yAdd': random.randint(self.MIN_VEL, self.MAX_VEL),
+				'xDirec': random.randint(0, 1),
+				'yDirec': random.randint(0, 1),
+			})
+
+	def animThreadFunc(self):
+		MAX_X = 30000
+		MIN_X = -30000
+
+		MAX_Y = 30000
+		MIN_Y = -30000
+
+		MIN_VEL = self.MIN_VEL
+		MAX_VEL = self.MAX_VEL
+
+		if not self.timeLast:
+			self.timeLast = datetime.now()
+
+		last = self.timeLast
+		now = datetime.now()
+
+		delta = now - last
+		delta2 = delta.microseconds / float(10**6)
+		delta = delta.microseconds / float(10**3)
+
+		for i in range(len(self.objects)):
+			obj = self.objects[i]
+			scaleX = self.scaleXs[i]
+
+			if self.scaleDirecX[i]:
+				scaleX += self.scaleRateX * delta
+			else:
+				scaleX -= self.scaleRateX * delta
+
+			if scaleX <= -1.0:
+				scaleX = -1.0
+				self.scaleDirecX[i]= True
+
+			elif scaleX >= 1.0:
+				scaleX = 1.0
+				self.scaleDirecX[i] = False
+
+			self.scaleXs[i] = scaleX
+			obj.setScaleIndep(x=scaleX)
+
+		for i in range(4):
+			obj = self.objects[i]
+			t = self.trackData[i]
+
+			if t['xDirec']:
+				obj.x += int(t['xAdd'] * delta)
+			else:
+				obj.x -= int(t['xAdd'] * delta)
+
+			if t['yDirec']:
+				obj.y += int(t['yAdd'] * delta)
+			else:
+				obj.y -= int(t['yAdd'] * delta)
+
+			if obj.x > MAX_X:
+				obj.x = MAX_X
+				t['xDirec'] = 0
+				t['xAdd'] = random.randint(MIN_VEL, MAX_VEL)
+			elif obj.x < MIN_X:
+				obj.x = MIN_X
+				t['xDirec'] = 1
+				t['xAdd'] = random.randint(MIN_VEL, MAX_VEL)
+			if obj.y > MAX_Y:
+				obj.y = MAX_Y
+				t['yDirec'] = 0
+				t['yAdd'] = random.randint(MIN_VEL, MAX_VEL)
+			elif obj.y < MIN_Y:
+				obj.y = MIN_Y
+				t['yDirec'] = 1
+				t['yAdd'] = random.randint(MIN_VEL, MAX_VEL)
+
+		self.timeLast = datetime.now() # For timedelta
+
 """
 GML
 """
@@ -897,6 +1022,7 @@ class BouncingBall(Animation):
 		self.scale = 1.0
 		self.theta = 1.0
 		self.thetaDirec = True
+
 
 		self.trackData = [] # Ball velocities, etc.
 
