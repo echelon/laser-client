@@ -33,6 +33,53 @@ ps = None
 Bootstrap it all! Go, go, go!
 """
 
+# At 9, need 24.
+# Wants animated dice...
+
+def addLD(SHOW):
+	SHOW.animations.append(ObjectAnimation('luckydraw'))
+	SHOW.animations.append(ObjectAnimation('cardAce',
+		init = {
+			'theta': 0.1
+		},
+		anim = {
+			'scale_x_mag': 1.0,
+			'scale_x_rate': 0.006
+		}
+	))
+	SHOW.animations.append(ObjectAnimation('tattoo'))
+	SHOW.animations.append(ObjectAnimation('piercing'))
+	SHOW.animations.append(ObjectAnimation('ldlogo',
+		anim = {
+			'rotate': True,
+			'rotateRate': 0.002,
+		}
+	))
+
+def addMC(SHOW):
+	SHOW.animations.append(ObjectAnimation('maccrackens', b=0,
+		anim = {
+			'scale': True,
+			'scaleRate': 0.001,
+			'scaleMin': 0.5,
+			'scaleMax': 1.6,
+			#'scale_x_mag': 1.0,
+			#'scale_x_rate': 0.001,
+			#'scale_y_mag': 1.0,
+			#'scale_y_rate': 0.004
+		}
+	))
+	SHOW.animations.append(ShamrockAnimation())
+	SHOW.animations.append(ObjectAnimation('craftbeer', b=0))
+	SHOW.animations.append(ObjectAnimation('celticpub', b=0,
+		anim = {
+			#'scale_x_mag': 1.0,
+			#'scale_x_rate': 0.001,
+			'scale_y_mag': 1.0,
+			'scale_y_rate': 0.004
+		}
+	))
+
 def main():
 	global SHOW
 	global ps
@@ -58,31 +105,13 @@ def main():
 	#ballAnim4 = BouncingBall(numBalls=4)
 	#squareAnim = SquareAnimation()
 
-	# LD -- 5
-	SHOW.animations.append(ObjectAnimation('luckydraw'))
-	SHOW.animations.append(ObjectAnimation('cardAce',
-		init = {
-			'theta': 0.1
-		},
-		anim = {
-			'scale_x_mag': 1.0,
-			'scale_x_rate': 0.006
-		}
-	))
-	SHOW.animations.append(ObjectAnimation('tattoo'))
-	SHOW.animations.append(ObjectAnimation('piercing'))
-	SHOW.animations.append(ObjectAnimation('ldlogo',
-		anim = {
-			'rotate': True,
-			'rotateRate': 0.002,
-		}
-	))
-
-	# MAC -- 5
-	SHOW.animations.append(ObjectAnimation('maccrackens', b=0))
-	SHOW.animations.append(ShamrockAnimation())
-	SHOW.animations.append(ObjectAnimation('craftbeer', b=0))
-	SHOW.animations.append(ObjectAnimation('celticpub', b=0))
+	# Make the show order 'fair' while restarting program.
+	if random.randint(0, 1):
+		addMC(SHOW)
+		addLD(SHOW)
+	else:
+		addLD(SHOW)
+		addMC(SHOW)
 
 	SHOW.next()
 	SHOW.prev()

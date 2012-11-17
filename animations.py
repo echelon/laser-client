@@ -92,6 +92,73 @@ class ObjectAnimation(Animation):
 		delta = now - last
 		delta = delta.microseconds / float(10**3)
 
+		if 'scale' in ap and ap['scale']:
+			scaleMinX = 0.0
+			scaleMaxX = 0.0
+			scaleMinY = 0.0
+			scaleMaxY = 0.0
+			scaleRateX = 0.0
+			scaleRateY = 0.0
+
+			# Specify dimensions together?
+			# TODO: Extremely flexible assignment
+			if 'scaleMin' in ap:
+				scaleMinX = ap['scaleMin']
+				scaleMinY = ap['scaleMin']
+				scaleMaxX = ap['scaleMax']
+				scaleMaxY = ap['scaleMax']
+
+			else:
+				scaleMinX = ap['scaleMinX']
+				scaleMinY = ap['scaleMinY']
+				scaleMaxX = ap['scaleMaxX']
+				scaleMaxY = ap['scaleMaxY']
+
+			if 'scaleRate' in ap:
+				scaleRateX = ap['scaleRate']
+				scaleRateY = ap['scaleRate']
+
+			else:
+				scaleRateX = ap['scaleRateX']
+				scaleRateY = ap['scaleRateY']
+
+			# Do scale animation
+
+			scaleX = self.scaleX
+			scaleY = self.scaleY
+
+			if self.scaleDirecX:
+				scaleX += scaleRateX * delta
+			else:
+				scaleX -= scaleRateX * delta
+
+			if self.scaleDirecY:
+				scaleY += scaleRateY * delta
+			else:
+				scaleY -= scaleRateY * delta
+
+			if scaleX <= scaleMinX:
+				scaleX = scaleMinX
+				self.scaleDirecX = True
+			elif scaleX >= scaleMaxX:
+				scaleX = scaleMaxX
+				self.scaleDirecX = False
+
+			if scaleY <= scaleMinY:
+				scaleY = scaleMinY
+				self.scaleDirecY = True
+			elif scaleY >= scaleMaxY:
+				scaleY = scaleMaxY
+				self.scaleDirecY = False
+
+			self.scaleX = scaleX
+			self.scaleY = scaleY
+
+			for obj in self.objects:
+				obj.scaleX = scaleX
+				obj.scaleY = scaleY
+
+
 		if 'scale_x_mag' in ap:
 			scaleX = self.scaleX
 			if self.scaleDirecX:
@@ -112,31 +179,30 @@ class ObjectAnimation(Animation):
 			for obj in self.objects:
 				obj.scaleX = scaleX
 
+		if 'scale_y_mag' in ap:
+			scaleY = self.scaleY
+			if self.scaleDirecY:
+				scaleY += ap['scale_y_rate'] * delta
+			else:
+				scaleY -= ap['scale_y_rate'] * delta
+
+			if scaleY <= -ap['scale_y_mag']:
+				scaleY = -ap['scale_y_mag']
+				self.scaleDirecY = True
+
+			elif scaleY >= ap['scale_y_mag']:
+				scaleY = ap['scale_y_mag']
+				self.scaleDirecY = False
+
+			self.scaleY = scaleY
+
+			for obj in self.objects:
+				obj.scaleY = scaleY
+
 		if 'rotate' in ap and ap['rotate']:
 
 			for obj in self.objects:
 				obj.theta += ap['rotateRate'] * delta
-
-			"""
-			obj.theta += obj.thetaVel
-			obj.scale += obj.scaleVel
-
-			if obj.theta >= self.TILT_THETA_MAX:
-				obj.theta = self.TILT_THETA_MAX
-				obj.thetaVel *= -1
-			elif obj.theta <= -self.TILT_THETA_MAX:
-				obj.theta = -self.TILT_THETA_MAX
-				obj.thetaVel *= -1
-
-			if obj.scale >= self.SCALE_MAX:
-				obj.scale = self.SCALE_MAX
-				#obj.scaleVel = -self.SCALE_RATE
-				obj.scaleVel *= -1
-			elif obj.scale <= self.SCALE_MIN:
-				obj.scale = self.SCALE_MIN
-				#obj.scaleVel = self.SCALE_RATE
-				obj.scaleVel *= -1
-			"""
 
 		self.timeLast = datetime.now()
 
@@ -423,7 +489,10 @@ class ShamrockAnimation(Animation):
 			obj.scaleVel = random.randint(1, 6) / float(100)
 			obj.thetaVel = random.randint(3, 6) / float(100)
 
-			obj.b = 0
+			if i % 2 == 0:
+				obj.b = 0
+			else:
+				obj.g = 0
 
 			self.objects.append(obj)
 
