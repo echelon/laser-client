@@ -10,6 +10,7 @@ import thread
 
 from lib import dac
 from lib.common import *
+from lib.svg import *
 from lib.stream import PointStream
 from lib.system import *
 from lib.shape import Shape
@@ -35,6 +36,7 @@ Bootstrap it all! Go, go, go!
 
 # At 9, need 24.
 # Wants animated dice...
+# Work on 'craft' slide
 
 def addLD(SHOW):
 	SHOW.animations.append(ObjectAnimation('luckydraw'))

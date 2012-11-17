@@ -12,6 +12,7 @@ import PyGML
 from lib import dac
 from lib.common import *
 from lib.stream import PointStream
+from lib.svg import *
 from lib.system import *
 from lib.shape import Shape
 from lib.importObj import importObj
@@ -91,123 +92,6 @@ class Graffiti(Shape):
 			y = pt['y']
 
 			yield (x, y, CMAX, CMAX, CMAX/4)
-
-		self.drawn = True
-
-class SvgCache(dict):
-
-	_INSTANCE = None
-
-	@classmethod
-	def instance(self):
-		if not SvgCache._INSTANCE:
-			SvgCache._INSTANCE = SvgCache()
-
-		return SvgCache._INSTANCE
-
-	def get(self, k):
-		if k in self:
-			return self[k]
-
-		# FIXME: Definitely a better way to do this...
-		exec "from objs.%s import OBJECTS" % k
-		exec "from objs.%s import MULT_X" % k
-		exec "from objs.%s import MULT_Y" % k
-
-		coordSets = importObj(OBJECTS, MULT_X, MULT_Y)
-		self[k] = coordSets
-
-		return coordSets
-
-	def __setattr__(self, k, v):
-		raise Exception, 'Cannot assign to SvgCache'
-
-
-class SvgPath(Shape):
-
-	def __init__(self, x = 0, y = 0,
-			r = CMAX, g = CMAX, b = CMAX, coords=None):
-		super(SvgPath, self).__init__(x, y, r, g, b)
-
-		self.drawn = False
-		self.pauseFirst = True
-		self.pauseLast = True
-
-		self.coords = coords
-
-		self.theta = 0
-		self.thetaRate = 0
-		self.scale = 1.0
-		self.scaleX = None
-		self.scaleY = None
-		self.jitter = True
-
-		self.drawEvery = 1
-		self.drawIndex = 1
-
-		self.skip = 0
-
-		self.flipX = False
-		self.flipY = False
-
-	def produce(self):
-		"""
-		Generate the points of the circle.
-		"""
-		r, g, b = (0, 0, 0)
-
-		# Obect skipping algo
-		self.drawIndex = (self.drawIndex+1) % self.drawEvery
-
-		doDraw = True
-		if not self.drawIndex in [0, 1]:
-			doDraw = False
-
-		if not doDraw:
-			self.drawn = True
-			return
-
-		i = 0
-		for c in self.coords:
-			if self.jitter and random.randint(0, 2) == 0:
-				continue
-
-			if self.skip:
-				i += 1
-				if i % self.skip == 0:
-					continue
-
-			# Scale
-			x = c['x'] * self.scale
-			y = c['y'] * self.scale
-
-			# Dimension independant scales
-			if self.scaleX:
-				x *= self.scaleX
-
-			if self.scaleY:
-				y *= self.scaleY
-
-			# Rotate
-			xx = x
-			yy = y
-			x = xx*math.cos(self.theta) - \
-					yy*math.sin(self.theta)
-			y = yy*math.cos(self.theta) + \
-					xx*math.sin(self.theta)
-
-			# Flip
-			if self.flipX:
-				x *= -1
-
-			if self.flipY:
-				y *= -1
-
-			# Translate
-			x += self.x
-			y += self.y
-
-			yield(int(x), int(y), self.r, self.g, self.b)
 
 		self.drawn = True
 

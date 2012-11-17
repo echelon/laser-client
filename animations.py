@@ -13,6 +13,7 @@ from lib.common import *
 from lib.stream import PointStream
 from lib.system import *
 from lib.shape import Shape
+from lib.svg import *
 from lib.importObj import importObj
 
 from objects import *
@@ -60,26 +61,8 @@ class ObjectAnimation(Animation):
 		self.blankingSamplePts = 7
 		self.trackingSamplePts = 15
 
-		ip = self.initParams
-
-		objCoords = SvgCache.instance().get(self.objName)
-		#objCoords = importObj(OBJECTS, MULT_X, MULT_Y)
-
-		for i in range(len(objCoords)):
-			coords = objCoords[i]
-
-			obj = SvgPath(coords=coords,
-					r=self.r, g=self.g, b=self.b)
-			obj.jitter = False
-			obj.skip = 3
-
-			if ip and 'theta' in ip:
-				obj.theta = ip['theta']
-
-			#obj.drawEvery = 4
-			#obj.drawIndex = i % obj.drawEvery
-
-			self.objects.append(obj)
+		obj = load_svg(self.objName)
+		self.objects.append(obj)
 
 	def animThreadFunc(self):
 		ap = self.animParams
