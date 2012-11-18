@@ -60,14 +60,13 @@ def addLD(SHOW):
 	))
 
 def addMC(SHOW):
-	return
 	SHOW.animations.append(
 			ObjectAnimation('maccrackens', b=0,
 		anim = {
 			'scale': True,
 			'scaleRate': 0.001,
-			'scaleMin': 0.5,
-			'scaleMax': 1.6,
+			'scaleMin': 0.7,
+			'scaleMax': 1.0,
 		}
 	))
 	SHOW.animations.append(ShamrockAnimation())

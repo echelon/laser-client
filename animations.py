@@ -407,8 +407,8 @@ class ShamrockAnimation(Animation):
 	#TILT_THETA_RATE = 0 #0.0001
 
 	EDGE_X = 27000
-	EDGE_Y = 27000
-	EDGE_Y_MIN = -1000
+	EDGE_Y_MAX = 7000
+	EDGE_Y_MIN = 0
 
 	VEL_MAG_MIN = 7
 	VEL_MAG_MAX = 15
@@ -489,8 +489,8 @@ class ShamrockAnimation(Animation):
 				obj.xVel = random.randint(self.VEL_MAG_MIN,
 										self.VEL_MAG_MAX)
 
-			if obj.y >= self.EDGE_Y:
-				obj.y = self.EDGE_Y
+			if obj.y >= self.EDGE_Y_MAX:
+				obj.y = self.EDGE_Y_MAX
 				obj.yVel = -random.randint(self.VEL_MAG_MIN,
 										self.VEL_MAG_MAX)
 			elif obj.y <= self.EDGE_Y_MIN:
@@ -897,6 +897,12 @@ class AwesomeAnimation(Animation):
 			obj.theta = theta
 
 class BouncingCardShapesAnim(Animation):
+
+	MAX_X = 27000
+	MIN_X = -27000
+	MAX_Y = 7000
+	MIN_Y = 0
+
 	def __init__(self):
 
 		self.timeLast = datetime.now() # For timedelta
@@ -950,12 +956,6 @@ class BouncingCardShapesAnim(Animation):
 			})
 
 	def animThreadFunc(self):
-		MAX_X = 30000
-		MIN_X = -30000
-
-		MAX_Y = 30000
-		MIN_Y = -30000
-
 		MIN_VEL = self.MIN_VEL
 		MAX_VEL = self.MAX_VEL
 
@@ -1003,20 +1003,20 @@ class BouncingCardShapesAnim(Animation):
 			else:
 				obj.y -= int(t['yAdd'] * delta)
 
-			if obj.x > MAX_X:
-				obj.x = MAX_X
+			if obj.x > self.MAX_X:
+				obj.x = self.MAX_X
 				t['xDirec'] = 0
 				t['xAdd'] = random.randint(MIN_VEL, MAX_VEL)
-			elif obj.x < MIN_X:
-				obj.x = MIN_X
+			elif obj.x < self.MIN_X:
+				obj.x = self.MIN_X
 				t['xDirec'] = 1
 				t['xAdd'] = random.randint(MIN_VEL, MAX_VEL)
-			if obj.y > MAX_Y:
-				obj.y = MAX_Y
+			if obj.y > self.MAX_Y:
+				obj.y = self.MAX_Y
 				t['yDirec'] = 0
 				t['yAdd'] = random.randint(MIN_VEL, MAX_VEL)
-			elif obj.y < MIN_Y:
-				obj.y = MIN_Y
+			elif obj.y < self.MIN_Y:
+				obj.y = self.MIN_Y
 				t['yDirec'] = 1
 				t['yAdd'] = random.randint(MIN_VEL, MAX_VEL)
 
