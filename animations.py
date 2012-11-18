@@ -14,88 +14,36 @@ from lib.stream import PointStream
 from lib.system import *
 from lib.shape import Shape
 from lib.svg import *
+from lib.gml import *
 from lib.importObj import importObj
 
 from objects import *
 
 """
-OBJS FROM SVG
+ANIMATIONS FROM SVG AND GML
 """
 
-class NewGmlAnimation(Animation):
-
-	def __init__(self, gmlObj, init = None, anim = None,
-			r=CMAX, g=CMAX, b=CMAX):
-
-		self.gmlObj = gmlObj
-
-		self.initParams = init
-		self.animParams = anim
-
-		self.r = r
-		self.g = g
-		self.b = b
-
-		self.timeLast = datetime.now() # For timedelta
-
-		self.scaleX = 1.0
-		self.scaleY = 1.0
-		self.scaleDirecX = True
-		self.scaleDirecY = True
-
-		self.rotate = 0.0
-		self.rotateDirec = True
-
-		super(NewGmlAnimation, self).__init__()
-
-	def setup(self):
-		self.hasAnimationThread = False
-
-		self.blankingSamplePts = 7
-		self.trackingSamplePts = 15
-
-		#obj = load_svg(self.objName)
-		print self.gmlObj
-		self.objects.append(self.gmlObj)
-
-	def animThreadFunc(self):
-		pass
-
-class ObjectAnimation(Animation):
+class GmlAnim(AdvancedAnimation):
 	"""
-	Imports a script containing points.
-	VERY crude.
+	Imports GML strokes and allows simple animation.
 	"""
 
-	def __init__(self, objName, init = None, anim = None,
-			r=CMAX, g=CMAX, b=CMAX):
+	def loadFile(self):
+		gmlObj = load_gml(self.loadFilename)
+		self.objects.append(gmlObj)
 
-		self.objName = objName
+class SvgAnim(AdvancedAnimation):
+	"""
+	Imports a script containing points extracted previously
+	from SVG graphics files.
+	VERY crude -- need to do direct SVG importing ASAP.
+	"""
 
-		self.initParams = init
-		self.animParams = anim
-
-		self.r = r
-		self.g = g
-		self.b = b
-
-		self.timeLast = datetime.now() # For timedelta
-
-		self.scaleX = 1.0
-		self.scaleY = 1.0
-		self.scaleDirecX = True
-		self.scaleDirecY = True
-
-		self.rotate = 0.0
-		self.rotateDirec = True
-
-		super(ObjectAnimation, self).__init__()
-
-	def setup(self):
+	def loadFile(self):
 		# FIXME: Definitely a better way to do this...
-		exec "from objs.%s import OBJECTS" % self.objName
-		exec "from objs.%s import MULT_X" % self.objName
-		exec "from objs.%s import MULT_Y" % self.objName
+		exec "from objs.%s import OBJECTS" % self.loadFilename
+		exec "from objs.%s import MULT_X" % self.loadFilename
+		exec "from objs.%s import MULT_Y" % self.loadFilename
 
 		self.hasAnimationThread = False if not \
 				self.animParams else True
@@ -103,166 +51,12 @@ class ObjectAnimation(Animation):
 		self.blankingSamplePts = 7
 		self.trackingSamplePts = 15
 
-		obj = load_svg(self.objName)
+		obj = load_svg(self.loadFilename)
 		self.objects.append(obj)
 
-	def animThreadFunc(self):
-		ap = self.animParams
-
-		if not self.timeLast:
-			self.timeLast = datetime.now()
-
-		last = self.timeLast
-		now = datetime.now()
-
-		delta = now - last
-		delta = delta.microseconds / float(10**3)
-
-		if 'scale' in ap and ap['scale']:
-			scaleMinX = 0.0
-			scaleMaxX = 0.0
-			scaleMinY = 0.0
-			scaleMaxY = 0.0
-			scaleRateX = 0.0
-			scaleRateY = 0.0
-
-			# Specify dimensions together?
-			# TODO: Extremely flexible assignment
-			if 'scaleMin' in ap:
-				scaleMinX = ap['scaleMin']
-				scaleMinY = ap['scaleMin']
-				scaleMaxX = ap['scaleMax']
-				scaleMaxY = ap['scaleMax']
-
-			else:
-				scaleMinX = ap['scaleMinX']
-				scaleMinY = ap['scaleMinY']
-				scaleMaxX = ap['scaleMaxX']
-				scaleMaxY = ap['scaleMaxY']
-
-			if 'scaleRate' in ap:
-				scaleRateX = ap['scaleRate']
-				scaleRateY = ap['scaleRate']
-
-			else:
-				scaleRateX = ap['scaleRateX']
-				scaleRateY = ap['scaleRateY']
-
-			# Do scale animation
-
-			scaleX = self.scaleX
-			scaleY = self.scaleY
-
-			if self.scaleDirecX:
-				scaleX += scaleRateX * delta
-			else:
-				scaleX -= scaleRateX * delta
-
-			if self.scaleDirecY:
-				scaleY += scaleRateY * delta
-			else:
-				scaleY -= scaleRateY * delta
-
-			if scaleX <= scaleMinX:
-				scaleX = scaleMinX
-				self.scaleDirecX = True
-			elif scaleX >= scaleMaxX:
-				scaleX = scaleMaxX
-				self.scaleDirecX = False
-
-			if scaleY <= scaleMinY:
-				scaleY = scaleMinY
-				self.scaleDirecY = True
-			elif scaleY >= scaleMaxY:
-				scaleY = scaleMaxY
-				self.scaleDirecY = False
-
-			self.scaleX = scaleX
-			self.scaleY = scaleY
-
-			for obj in self.objects:
-				obj.scaleX = scaleX
-				obj.scaleY = scaleY
-
-
-		if 'rotate' in ap and ap['rotate']:
-			rotate = self.rotate
-			rotateRate = ap['rotateRate']
-			rotateMax = 0.0
-			rotateMin = 0.0
-			rotateLimits = False
-
-			if 'rotateMag' in ap:
-				rotateLimits = True
-				rotateMax = ap['rotateMag']
-				rotateMin = -ap['rotateMag']
-			elif 'rotateMin' in ap:
-				rotateLimits = True
-				rotateMax = ap['rotateMax']
-				rotateMin = ap['rotateMin']
-
-			if not rotateLimits:
-				rotate += rotateRate * delta
-
-			else:
-				if self.rotateDirec:
-					rotate += rotateRate * delta
-				else:
-					rotate -= rotateRate * delta
-
-				if rotate <= rotateMin:
-					rotate = rotateMin
-					self.rotateDirec = True
-				elif rotate >= rotateMax:
-					rotate = rotateMax
-					self.rotateDirec = False
-
-			self.rotate = rotate
-
-			for obj in self.objects:
-				obj.theta = rotate
-
-		if 'scale_x_mag' in ap:
-			scaleX = self.scaleX
-			if self.scaleDirecX:
-				scaleX += ap['scale_x_rate'] * delta
-			else:
-				scaleX -= ap['scale_x_rate'] * delta
-
-			if scaleX <= -ap['scale_x_mag']:
-				scaleX = -ap['scale_x_mag']
-				self.scaleDirecX = True
-
-			elif scaleX >= ap['scale_x_mag']:
-				scaleX = ap['scale_x_mag']
-				self.scaleDirecX = False
-
-			self.scaleX = scaleX
-
-			for obj in self.objects:
-				obj.scaleX = scaleX
-
-		if 'scale_y_mag' in ap:
-			scaleY = self.scaleY
-			if self.scaleDirecY:
-				scaleY += ap['scale_y_rate'] * delta
-			else:
-				scaleY -= ap['scale_y_rate'] * delta
-
-			if scaleY <= -ap['scale_y_mag']:
-				scaleY = -ap['scale_y_mag']
-				self.scaleDirecY = True
-
-			elif scaleY >= ap['scale_y_mag']:
-				scaleY = ap['scale_y_mag']
-				self.scaleDirecY = False
-
-			self.scaleY = scaleY
-
-			for obj in self.objects:
-				obj.scaleY = scaleY
-
-		self.timeLast = datetime.now()
+"""
+Custom stuff...
+"""
 
 class SquareAnimation(Animation):
 
@@ -681,7 +475,6 @@ class ShamrockAnimation(Animation):
 
 		self.timeLast = datetime.now() # For timedelta
 
-
 class ArrowAnim(Animation):
 
 	SCALE_MAX = 7.0
@@ -815,80 +608,6 @@ class HexAnimation(Animation):
 
 		for obj in self.objects:
 			obj.theta += self.TILT_THETA_RATE
-
-class CostumesAnimation(Animation):
-
-	SCALE_MAX = 4.2
-	SCALE_MIN = 3.5
-	SCALE_RATE = 0.02
-
-	TILT_THETA_MAX = 0.3
-	TILT_THETA_MIN = -0.3
-	TILT_THETA_RATE = 0.02
-
-	def setup(self):
-		from objs.costumes import OBJECTS
-		from objs.costumes import MULT_X
-		from objs.costumes import MULT_Y
-
-		self.hasAnimationThread = True
-		self.scale = self.SCALE_MIN
-		self.scaleDirec = True
-		self.theta = 1.0
-		self.thetaDirec = True
-
-		self.blankingSamplePts = 5
-		self.trackingSamplePts = 12
-
-		objCoords = importObj(OBJECTS,
-				MULT_X/3.0, MULT_Y/3.0)
-
-		for i in range(len(objCoords)):
-			coords = objCoords[i]
-
-			obj = SvgPath(coords=coords)
-			obj.jitter = False
-			obj.scale = self.scale
-			obj.b = 0
-			self.objects.append(obj)
-
-	def animThreadFunc(self):
-		scale = self.scale
-		if self.scaleDirec:
-			scale += self.SCALE_RATE
-		else:
-			scale -= self.SCALE_RATE
-
-		if scale <= self.SCALE_MIN:
-			scale = self.SCALE_MIN
-			self.scaleDirec = True
-
-		elif scale >= self.SCALE_MAX:
-			scale = self.SCALE_MAX
-			self.scaleDirec = False
-
-		self.scale = scale
-
-		for obj in self.objects:
-			obj.scale = scale
-
-		theta = self.theta
-		if self.thetaDirec:
-			theta += self.TILT_THETA_RATE
-		else:
-			theta -= self.TILT_THETA_RATE
-
-		if theta <= self.TILT_THETA_MIN:
-			theta = self.TILT_THETA_MIN
-			self.thetaDirec = True
-		elif theta >= self.TILT_THETA_MAX:
-			theta = self.TILT_THETA_MAX
-			self.thetaDirec = False
-
-		self.theta = theta
-
-		for obj in self.objects:
-			obj.theta = theta
 
 class GhostAnimation(Animation):
 
@@ -1283,7 +1002,7 @@ class MusicAnim(Animation):
 GML
 """
 
-class GmlAnimation(Animation):
+class OldGmlAnimation(Animation):
 	def __init__(self, filename,
 			theta=0, mul=20000, mulX=None, mulY=None):
 
@@ -1296,7 +1015,7 @@ class GmlAnimation(Animation):
 		self.mulX = mulX
 		self.mulY = mulY
 
-		super(GmlAnimation, self).__init__()
+		super(OldGmlAnimation, self).__init__()
 
 	def setup(self):
 

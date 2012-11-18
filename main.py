@@ -40,11 +40,11 @@ Bootstrap it all! Go, go, go!
 
 def addLD(SHOW):
 	SHOW.animations.append(
-		NewGmlAnimation(load_gml('gml/bewareBootDevil.gml'))
+		GmlAnim('gml/bewareBootDevil.gml')
 	)
 	SHOW.animations.append(BouncingCardShapesAnim())
-	SHOW.animations.append(ObjectAnimation('luckydraw'))
-	SHOW.animations.append(ObjectAnimation('cardAce',
+	SHOW.animations.append(SvgAnim('luckydraw'))
+	SHOW.animations.append(SvgAnim('cardAce',
 		init = {
 			'theta': 0.1
 		},
@@ -53,9 +53,9 @@ def addLD(SHOW):
 			'scale_x_rate': 0.006
 		}
 	))
-	SHOW.animations.append(ObjectAnimation('tattoo'))
-	SHOW.animations.append(ObjectAnimation('piercing'))
-	SHOW.animations.append(ObjectAnimation('ldlogo',
+	SHOW.animations.append(SvgAnim('tattoo'))
+	SHOW.animations.append(SvgAnim('piercing'))
+	SHOW.animations.append(SvgAnim('ldlogo',
 		anim = {
 			'rotate': True,
 			'rotateRate': 0.009,
@@ -65,7 +65,7 @@ def addLD(SHOW):
 
 def addMC(SHOW):
 	SHOW.animations.append(
-			ObjectAnimation('maccrackens', b=0,
+			SvgAnim('maccrackens', b=0,
 		anim = {
 			'scale': True,
 			'scaleRate': 0.001,
@@ -75,7 +75,7 @@ def addMC(SHOW):
 	))
 	SHOW.animations.append(ShamrockAnimation())
 	SHOW.animations.append(
-			ObjectAnimation('craftbeer', b=0,
+			SvgAnim('craftbeer', b=0,
 		anim = {
 			'rotate': True,
 			'rotateRate': 0.0006,
@@ -84,7 +84,7 @@ def addMC(SHOW):
 		}
 	))
 	SHOW.animations.append(
-			ObjectAnimation('celticpub', b=0,
+			SvgAnim('celticpub', b=0,
 		anim = {
 			#'scale_x_mag': 1.0,
 			#'scale_x_rate': 0.001,
@@ -93,7 +93,7 @@ def addMC(SHOW):
 		}
 	))
 	SHOW.animations.append(
-			ObjectAnimation('liveMusic', b=0,
+			SvgAnim('liveMusic', b=0,
 		anim = {
 			'scale_x_mag': 1.0,
 			'scale_x_rate': 0.002
@@ -123,7 +123,6 @@ def main():
 	SHOW = Show()
 	SHOW.stream = ps
 
-	#helloAnim = GmlAnimation('gml/hello.gml', mul=50000)
 	#ballAnim4 = BouncingBall(numBalls=4)
 	#squareAnim = SquareAnimation()
 

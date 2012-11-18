@@ -200,3 +200,206 @@ class Animation(object):
 		"""
 		self._doRunThread = False
 
+
+class AdvancedAnimation(object):
+	"""
+	Easy Animation
+	"""
+
+	def __init__(self, loadFile, init = None, anim = None,
+			r=CMAX, g=CMAX, b=CMAX):
+
+		super(AdvancedAnimation, self).__init__()
+
+		self.loadFilename = loadFile
+
+		self.initParams = init
+		self.animParams = anim
+
+		self.r = r
+		self.g = g
+		self.b = b
+
+		self.timeLast = datetime.now() # For timedelta
+
+		self.scaleX = 1.0
+		self.scaleY = 1.0
+		self.scaleDirecX = True
+		self.scaleDirecY = True
+
+		self.rotate = 0.0
+		self.rotateDirec = True
+
+		self.loadFile()
+
+	def loadFile(self):
+		"""
+		Do file loading.
+		Override me!!
+		"""
+		# XXX: This kind of makes 'setup()' pointless
+		pass
+
+	def animThreadFunc(self):
+		"""
+		This does all the simple animation!
+		Saves a ton of time writing custom animations.
+		"""
+		ap = self.animParams
+
+		if not self.timeLast:
+			self.timeLast = datetime.now()
+
+		last = self.timeLast
+		now = datetime.now()
+
+		delta = now - last
+		delta = delta.microseconds / float(10**3)
+
+		if 'scale' in ap and ap['scale']:
+			scaleMinX = 0.0
+			scaleMaxX = 0.0
+			scaleMinY = 0.0
+			scaleMaxY = 0.0
+			scaleRateX = 0.0
+			scaleRateY = 0.0
+
+			# Specify dimensions together?
+			# TODO: Extremely flexible assignment
+			if 'scaleMin' in ap:
+				scaleMinX = ap['scaleMin']
+				scaleMinY = ap['scaleMin']
+				scaleMaxX = ap['scaleMax']
+				scaleMaxY = ap['scaleMax']
+
+			else:
+				scaleMinX = ap['scaleMinX']
+				scaleMinY = ap['scaleMinY']
+				scaleMaxX = ap['scaleMaxX']
+				scaleMaxY = ap['scaleMaxY']
+
+			if 'scaleRate' in ap:
+				scaleRateX = ap['scaleRate']
+				scaleRateY = ap['scaleRate']
+
+			else:
+				scaleRateX = ap['scaleRateX']
+				scaleRateY = ap['scaleRateY']
+
+			# Do scale animation
+
+			scaleX = self.scaleX
+			scaleY = self.scaleY
+
+			if self.scaleDirecX:
+				scaleX += scaleRateX * delta
+			else:
+				scaleX -= scaleRateX * delta
+
+			if self.scaleDirecY:
+				scaleY += scaleRateY * delta
+			else:
+				scaleY -= scaleRateY * delta
+
+			if scaleX <= scaleMinX:
+				scaleX = scaleMinX
+				self.scaleDirecX = True
+			elif scaleX >= scaleMaxX:
+				scaleX = scaleMaxX
+				self.scaleDirecX = False
+
+			if scaleY <= scaleMinY:
+				scaleY = scaleMinY
+				self.scaleDirecY = True
+			elif scaleY >= scaleMaxY:
+				scaleY = scaleMaxY
+				self.scaleDirecY = False
+
+			self.scaleX = scaleX
+			self.scaleY = scaleY
+
+			for obj in self.objects:
+				obj.scaleX = scaleX
+				obj.scaleY = scaleY
+
+
+		if 'rotate' in ap and ap['rotate']:
+			rotate = self.rotate
+			rotateRate = ap['rotateRate']
+			rotateMax = 0.0
+			rotateMin = 0.0
+			rotateLimits = False
+
+			if 'rotateMag' in ap:
+				rotateLimits = True
+				rotateMax = ap['rotateMag']
+				rotateMin = -ap['rotateMag']
+			elif 'rotateMin' in ap:
+				rotateLimits = True
+				rotateMax = ap['rotateMax']
+				rotateMin = ap['rotateMin']
+
+			if not rotateLimits:
+				rotate += rotateRate * delta
+
+			else:
+				if self.rotateDirec:
+					rotate += rotateRate * delta
+				else:
+					rotate -= rotateRate * delta
+
+				if rotate <= rotateMin:
+					rotate = rotateMin
+					self.rotateDirec = True
+				elif rotate >= rotateMax:
+					rotate = rotateMax
+					self.rotateDirec = False
+
+			self.rotate = rotate
+
+			for obj in self.objects:
+				obj.theta = rotate
+
+		if 'scale_x_mag' in ap:
+			scaleX = self.scaleX
+			if self.scaleDirecX:
+				scaleX += ap['scale_x_rate'] * delta
+			else:
+				scaleX -= ap['scale_x_rate'] * delta
+
+			if scaleX <= -ap['scale_x_mag']:
+				scaleX = -ap['scale_x_mag']
+				self.scaleDirecX = True
+
+			elif scaleX >= ap['scale_x_mag']:
+				scaleX = ap['scale_x_mag']
+				self.scaleDirecX = False
+
+			self.scaleX = scaleX
+
+			for obj in self.objects:
+				obj.scaleX = scaleX
+
+		if 'scale_y_mag' in ap:
+			scaleY = self.scaleY
+			if self.scaleDirecY:
+				scaleY += ap['scale_y_rate'] * delta
+			else:
+				scaleY -= ap['scale_y_rate'] * delta
+
+			if scaleY <= -ap['scale_y_mag']:
+				scaleY = -ap['scale_y_mag']
+				self.scaleDirecY = True
+
+			elif scaleY >= ap['scale_y_mag']:
+				scaleY = ap['scale_y_mag']
+				self.scaleDirecY = False
+
+			self.scaleY = scaleY
+
+			for obj in self.objects:
+				obj.scaleY = scaleY
+
+		self.timeLast = datetime.now()
+
+
