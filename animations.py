@@ -519,7 +519,131 @@ class ShamrockAnimation(Animation):
 
 		self.timeLast = datetime.now() # For timedelta
 
-class ArrowAnimation(Animation):
+class ShamrockAnimation(Animation):
+
+	SCALE_MAX = 3.0
+	SCALE_MIN = 1.5
+	#SCALE_RATE = 0 #0.00001
+
+	TILT_THETA_MAX = 0.4
+	TILT_THETA_MIN = -0.4
+	#TILT_THETA_RATE = 0 #0.0001
+
+	EDGE_X = 27000
+	EDGE_Y_MAX = 7000
+	EDGE_Y_MIN = 0
+
+	VEL_MAG_MIN = 7
+	VEL_MAG_MAX = 15
+
+	def setup(self):
+
+		def importBat():
+			from objs.shamrock import OBJECTS
+			from objs.shamrock import MULT_X
+			from objs.shamrock import MULT_Y
+
+			objCoords = importObj(OBJECTS,
+					MULT_X/3.0, MULT_Y/3.0)
+
+			coords = objCoords[0]
+
+			obj = SvgPath(coords=coords)
+			obj.jitter = False
+			return obj
+
+		self.timeLast = datetime.now() # For timedelta
+
+		self.hasAnimationThread = True
+		self.scale = self.SCALE_MIN
+		self.scaleDirec = True
+		self.theta = 1.0
+		self.thetaDirec = True
+
+		self.blankingSamplePts = 10
+		self.trackingSamplePts = 10
+
+		bat = importBat()
+		for i in range(3):
+			obj = copy.copy(bat)
+			obj.x = random.randint(-5000, 5000)
+			obj.y = random.randint(-5000, 5000)
+
+			obj.xVel = random.randint(self.VEL_MAG_MIN,
+					self.VEL_MAG_MAX)
+			obj.xVel *= 1 if random.randint(0, 1) else -1
+
+			obj.yVel = random.randint(self.VEL_MAG_MIN,
+					self.VEL_MAG_MAX)
+			obj.yVel *= 1 if random.randint(0, 1) else -1
+
+			obj.scale = random.randint(15, 35) / float(10)
+			obj.scaleVel = random.randint(1, 4) / float(1000)
+			obj.thetaVel = random.randint(1, 3) / float(1000)
+
+			if i % 2 == 0:
+				obj.b = 0
+			else:
+				obj.g = 0
+
+			self.objects.append(obj)
+
+	def animThreadFunc(self):
+
+		if not self.timeLast:
+			self.timeLast = datetime.now()
+
+		last = self.timeLast
+		now = datetime.now()
+
+		delta = now - last
+		delta = delta.microseconds / float(10**3)
+
+		for obj in self.objects:
+			obj.x += obj.xVel * delta
+			obj.y += obj.yVel * delta
+
+			if obj.x >= self.EDGE_X:
+				obj.x = self.EDGE_X
+				obj.xVel = -random.randint(self.VEL_MAG_MIN,
+										self.VEL_MAG_MAX)
+			elif obj.x <= -self.EDGE_X:
+				obj.x = -self.EDGE_X
+				obj.xVel = random.randint(self.VEL_MAG_MIN,
+										self.VEL_MAG_MAX)
+
+			if obj.y >= self.EDGE_Y_MAX:
+				obj.y = self.EDGE_Y_MAX
+				obj.yVel = -random.randint(self.VEL_MAG_MIN,
+										self.VEL_MAG_MAX)
+			elif obj.y <= self.EDGE_Y_MIN:
+				obj.y = self.EDGE_Y_MIN
+				obj.yVel = random.randint(self.VEL_MAG_MIN,
+										self.VEL_MAG_MAX)
+
+			obj.theta += obj.thetaVel * delta
+			obj.scale += obj.scaleVel * delta
+
+			if obj.theta >= self.TILT_THETA_MAX:
+				obj.theta = self.TILT_THETA_MAX
+				obj.thetaVel *= -1
+			elif obj.theta <= -self.TILT_THETA_MAX:
+				obj.theta = -self.TILT_THETA_MAX
+				obj.thetaVel *= -1
+
+			if obj.scale >= self.SCALE_MAX:
+				obj.scale = self.SCALE_MAX
+				#obj.scaleVel = -self.SCALE_RATE
+				obj.scaleVel *= -1
+			elif obj.scale <= self.SCALE_MIN:
+				obj.scale = self.SCALE_MIN
+				#obj.scaleVel = self.SCALE_RATE
+				obj.scaleVel *= -1
+
+		self.timeLast = datetime.now() # For timedelta
+
+
+class ArrowAnim(Animation):
 
 	SCALE_MAX = 7.0
 	SCALE_MIN = 5.5
@@ -1011,6 +1135,100 @@ class BouncingCardShapesAnim(Animation):
 				obj.x = self.MIN_X
 				t['xDirec'] = 1
 				t['xAdd'] = random.randint(MIN_VEL, MAX_VEL)
+			if obj.y > self.MAX_Y:
+				obj.y = self.MAX_Y
+				t['yDirec'] = 0
+				t['yAdd'] = random.randint(MIN_VEL, MAX_VEL)
+			elif obj.y < self.MIN_Y:
+				obj.y = self.MIN_Y
+				t['yDirec'] = 1
+				t['yAdd'] = random.randint(MIN_VEL, MAX_VEL)
+
+		self.timeLast = datetime.now() # For timedelta
+
+class MusicAnim(Animation):
+
+	MAX_X = 27000
+	MIN_X = -27000
+	MAX_Y = 7000
+	MIN_Y = 0
+
+	def __init__(self):
+
+		self.timeLast = datetime.now() # For timedelta
+
+		super(MusicAnim, self).__init__()
+
+	def setup(self):
+		self.hasAnimationThread = True
+		self.scale = 1.0
+		self.theta = 1.0
+		self.thetaDirec = True
+
+		self.trackData = [] # Ball velocities, etc.
+
+		# Pseudo-rotation
+		self.scaleRateX = 0.002
+		self.scaleXs = [-0.5, 0.0, 0.5, 1.0]
+		self.scaleDirecX = [True for i in range(4)]
+
+		self.objects.append(load_svg('musicNote1'))
+		self.objects.append(load_svg('musicNote2'))
+		self.objects.append(load_svg('musicNote1'))
+		self.objects.append(load_svg('musicNote1'))
+
+		length = self.MAX_X - self.MIN_X
+		trav = length / 4
+
+		self.objects[0].x = self.MIN_X
+		self.objects[1].x = self.MIN_X + trav
+		self.objects[2].x = self.MIN_X + trav*2
+		self.objects[3].x = self.MIN_X + trav*3
+
+		self.MIN_VEL = 5
+		self.MAX_VEL = 40
+
+		for i in range(4):
+			r = CMAX
+			g = CMAX
+			b = CMAX
+			if i % 3 == 0:
+				g = 0
+				b = CMAX
+			elif i % 3 == 1:
+				g = CMAX
+				b = 0
+
+			self.trackData.append({
+				'xAdd': random.randint(self.MIN_VEL, self.MAX_VEL),
+				'yAdd': random.randint(self.MIN_VEL, self.MAX_VEL),
+				'xDirec': random.randint(0, 1),
+				'yDirec': random.randint(0, 1),
+			})
+
+	def animThreadFunc(self):
+		MIN_VEL = self.MIN_VEL
+		MAX_VEL = self.MAX_VEL
+
+		if not self.timeLast:
+			self.timeLast = datetime.now()
+
+		last = self.timeLast
+		now = datetime.now()
+
+		delta = now - last
+		delta2 = delta.microseconds / float(10**6)
+		delta = delta.microseconds / float(10**3)
+
+		for i in range(4):
+			obj = self.objects[i]
+			t = self.trackData[i]
+
+			if t['yDirec']:
+				obj.y += int(t['yAdd'] * delta)
+			else:
+				obj.y -= int(t['yAdd'] * delta)
+
 			if obj.y > self.MAX_Y:
 				obj.y = self.MAX_Y
 				t['yDirec'] = 0

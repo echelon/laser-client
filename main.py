@@ -55,7 +55,7 @@ def addLD(SHOW):
 	SHOW.animations.append(ObjectAnimation('ldlogo',
 		anim = {
 			'rotate': True,
-			'rotateRate': 0.002,
+			'rotateRate': 0.009,
 		}
 	))
 
@@ -88,6 +88,15 @@ def addMC(SHOW):
 			'scale_y_rate': 0.004
 		}
 	))
+	SHOW.animations.append(
+			ObjectAnimation('liveMusic', b=0,
+		anim = {
+			'scale_x_mag': 1.0,
+			'scale_x_rate': 0.002
+		}
+	))
+	SHOW.animations.append(MusicAnim())
+	SHOW.animations.append(ArrowAnim())
 
 def main():
 	global SHOW
