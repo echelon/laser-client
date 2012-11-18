@@ -17,7 +17,8 @@ from lib.system import *
 from lib.shape import Shape
 from lib.importObj import importObj
 
-def load_gml(filename):
+def load_gml(filename, initMulX=50000, initMulY=50000,
+			initTheta=math.pi/2):
 
 	def getGml(fn):
 		f = open(fn, 'r')
@@ -29,6 +30,8 @@ def load_gml(filename):
 
 	allPts = []
 	strokes = []
+
+	t = initTheta
 
 	for stroke in gml.iterStrokes():
 		strokePts = []
@@ -45,7 +48,7 @@ def load_gml(filename):
 			y = yy*math.cos(t) + \
 					xx*math.sin(t)
 
-			pt = {'x': x, 'y': y}
+			pt = {'x': int(x), 'y': int(y)}
 
 			allPts.append(pt)
 			strokePts.append(pt)
@@ -85,7 +88,7 @@ class Gml(Shape):
 	def __init__(self, strokes,
 			x = 0, y = 0,
 			r = CMAX, g = CMAX, b = CMAX):
-		super(Svg, self).__init__(x, y, r, g, b)
+		super(Gml, self).__init__(x, y, r, g, b)
 
 		self.drawn = False
 		self.pauseFirst = True
@@ -131,8 +134,6 @@ class Gml(Shape):
 		"""
 		Generate the points of the circle.
 		"""
-		r, g, b = (0, 0, 0)
-
 		# Obect skipping algo
 		self.drawIndex = (self.drawIndex+1) % self.drawEvery
 
@@ -278,7 +279,7 @@ class Gml(Shape):
 class GmlStroke(Shape):
 
 	def __init__(self, points,
-			x = 0, y = 0, r = 0, g = 0, b = 0,
+			x = 0, y = 0, r = CMAX, g = CMAX, b = CMAX,
 			initMulX = 30000, initMulY = 30000):
 
 		super(GmlStroke, self).__init__(x, y, r, g, b)
@@ -296,9 +297,6 @@ class GmlStroke(Shape):
 		self.points = points
 
 	def produce(self):
-		"""
-		Generate the points of the circle.
-		"""
 		for pt in self.points:
 			x = pt['x']
 			y = pt['y']
@@ -312,7 +310,7 @@ class Graffiti2(Shape):
 			filename=None, initTheta=math.pi,
 			initMulX = 30000, initMulY = 30000):
 
-		super(Graffiti, self).__init__(x, y, r, g, b)
+		super(Graffiti2, self).__init__(x, y, r, g, b)
 
 		def getGml(fn):
 			f = open(fn, 'r')

@@ -22,6 +22,45 @@ from objects import *
 OBJS FROM SVG
 """
 
+class NewGmlAnimation(Animation):
+
+	def __init__(self, gmlObj, init = None, anim = None,
+			r=CMAX, g=CMAX, b=CMAX):
+
+		self.gmlObj = gmlObj
+
+		self.initParams = init
+		self.animParams = anim
+
+		self.r = r
+		self.g = g
+		self.b = b
+
+		self.timeLast = datetime.now() # For timedelta
+
+		self.scaleX = 1.0
+		self.scaleY = 1.0
+		self.scaleDirecX = True
+		self.scaleDirecY = True
+
+		self.rotate = 0.0
+		self.rotateDirec = True
+
+		super(NewGmlAnimation, self).__init__()
+
+	def setup(self):
+		self.hasAnimationThread = False
+
+		self.blankingSamplePts = 7
+		self.trackingSamplePts = 15
+
+		#obj = load_svg(self.objName)
+		print self.gmlObj
+		self.objects.append(self.gmlObj)
+
+	def animThreadFunc(self):
+		pass
+
 class ObjectAnimation(Animation):
 	"""
 	Imports a script containing points.

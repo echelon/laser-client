@@ -39,7 +39,9 @@ Bootstrap it all! Go, go, go!
 # Wants animated dice...
 
 def addLD(SHOW):
-	SHOW.animations.append(load_gml('gml/hello.gml'))
+	SHOW.animations.append(
+		NewGmlAnimation(load_gml('gml/bewareBootDevil.gml'))
+	)
 	SHOW.animations.append(BouncingCardShapesAnim())
 	SHOW.animations.append(ObjectAnimation('luckydraw'))
 	SHOW.animations.append(ObjectAnimation('cardAce',
@@ -59,6 +61,7 @@ def addLD(SHOW):
 			'rotateRate': 0.009,
 		}
 	))
+	SHOW.animations.append(GhostAnimation())
 
 def addMC(SHOW):
 	SHOW.animations.append(
