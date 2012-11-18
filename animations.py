@@ -52,14 +52,14 @@ class GmlAnim(AdvancedAnimation):
 		delta = now - last
 		delta = delta.microseconds / float(10**3)
 
-		print delta
-
 		if not self.started:
-			self.drawToPoint = 0
+			for obj in self.objects:
+				obj.drawToPoint = 0
 
 		self.started = True
 
-		self.drawToPoint += delta
+		for obj in self.objects:
+			obj.drawToPoint += int(delta)*2
 
 		super(GmlAnim, self).animThreadFunc()
 

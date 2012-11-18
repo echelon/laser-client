@@ -77,6 +77,9 @@ def load_gml(filename, initMulX=80000, initMulY=80000,
 		s = GmlStroke(points=stroke)
 		gmlStrokes.append(s)
 
+	# GML has the paths in reverse of the original draw order 
+	gmlStrokes.reverse()
+
 	return Gml(strokes=gmlStrokes)
 
 class Gml(Shape):
@@ -246,7 +249,8 @@ class Gml(Shape):
 
 					# Emulate Live Drawing!
 					# This will halt drawing objects
-					if pointsDrawn > self.drawToPoint:
+					if pointsDrawn >= self.drawToPoint:
+						curObj.drawn = True
 						nextObj = objects[0]
 						break
 
