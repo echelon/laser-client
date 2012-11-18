@@ -117,6 +117,14 @@ class Gml(Shape):
 		self.flipX = False
 		self.flipY = False
 
+		# Drawing animation...
+		self.numPoints = 0
+		self.drawToPoint = 0
+		for s in strokes:
+			self.numPoints += len(s.points)
+
+		self.drawToPoint = self.numPoints + 500
+
 	def setScaleIndep(self, x=1.0, y=1.0):
 		self.scaleX = x
 		self.scaleY = y
@@ -134,6 +142,9 @@ class Gml(Shape):
 		"""
 		Generate the points of the circle.
 		"""
+		# Drawing emulation
+		pointsDrawn = 0
+
 		# Obect skipping algo
 		self.drawIndex = (self.drawIndex+1) % self.drawEvery
 
@@ -225,11 +236,19 @@ class Gml(Shape):
 			lastPt = (0, 0, 0, 0, 0)
 			if not curObj.drawn:
 				# XXX: This was cached upfront!
+				pointsDrawn += 1
 				yield firstPt
 				for pt in curObj.produce():
 					#lastPt = self.transform(pt)
 					lastPt = pt
+					pointsDrawn += 1
 					yield lastPt
+
+					# Emulate Live Drawing!
+					# This will halt drawing objects
+					if pointsDrawn > self.drawToPoint:
+						nextObj = objects[0]
+						break
 
 			# Blanking (on the way out), if set
 			if curObj.doBlanking:
@@ -274,6 +293,7 @@ class Gml(Shape):
 		for i in destroy:
 			objects.pop(i)
 
+		pointsDrawn = 0
 		self.drawn = True
 
 class GmlStroke(Shape):
