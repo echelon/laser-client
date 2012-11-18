@@ -10,10 +10,11 @@ import thread
 
 from lib import dac
 from lib.common import *
-from lib.svg import *
 from lib.stream import PointStream
 from lib.system import *
 from lib.shape import Shape
+from lib.gml import *
+from lib.svg import *
 
 from animations import *
 from objects import *
@@ -38,6 +39,7 @@ Bootstrap it all! Go, go, go!
 # Wants animated dice...
 
 def addLD(SHOW):
+	SHOW.animations.append(load_gml('gml/hello.gml'))
 	SHOW.animations.append(BouncingCardShapesAnim())
 	SHOW.animations.append(ObjectAnimation('luckydraw'))
 	SHOW.animations.append(ObjectAnimation('cardAce',

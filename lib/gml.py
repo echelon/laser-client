@@ -17,14 +17,74 @@ from lib.system import *
 from lib.shape import Shape
 from lib.importObj import importObj
 
+def load_gml(filename):
+
+	def getGml(fn):
+		f = open(fn, 'r')
+		g = PyGML.GML(f)
+		f.close()
+		return g
+
+	gml = getGml(filename)
+
+	allPts = []
+	strokes = []
+
+	for stroke in gml.iterStrokes():
+		strokePts = []
+		for pt in stroke.iterPoints():
+
+			x = pt.x * initMulX
+			y = pt.y * initMulY
+
+			xx = x
+			yy = y
+
+			x = xx*math.cos(t) - \
+					yy*math.sin(t)
+			y = yy*math.cos(t) + \
+					xx*math.sin(t)
+
+			pt = {'x': x, 'y': y}
+
+			allPts.append(pt)
+			strokePts.append(pt)
+
+		strokes.append(strokePts)
+
+	# Normalize points to center
+	xsum = 0
+	ysum = 0
+	for c in allPts:
+		xsum += c['x']
+		ysum += c['y']
+
+	xavg = xsum / len(allPts)
+	yavg = ysum / len(allPts)
+
+	# Normalize strokes
+	for i in range(len(strokes)):
+		for j in range(len(strokes[i])):
+			strokes[i][j]['x'] -= xavg
+			strokes[i][j]['y'] -= yavg
+
+	# Create stroke objects
+	gmlStrokes = []
+	for stroke in strokes:
+		s = GmlStroke(points=stroke)
+		gmlStrokes.append(s)
+
+	return Gml(strokes=gmlStrokes)
+
 class Gml(Shape):
 	"""
 	A cross between SHAPE and STREAM.
 	Manages several SvgPath(Shape) objects in a Stream.
 	"""
 
-	def __init__(self, x = 0, y = 0,
-			r = CMAX, g = CMAX, b = CMAX, strokes=None):
+	def __init__(self, strokes,
+			x = 0, y = 0,
+			r = CMAX, g = CMAX, b = CMAX):
 		super(Svg, self).__init__(x, y, r, g, b)
 
 		self.drawn = False
@@ -215,78 +275,34 @@ class Gml(Shape):
 
 		self.drawn = True
 
-class Stroke(Shape):
+class GmlStroke(Shape):
 
-	def __init__(self, x = 0, y = 0, r = 0, g = 0, b = 0,
-			filename=None, initTheta=math.pi,
+	def __init__(self, points,
+			x = 0, y = 0, r = 0, g = 0, b = 0,
 			initMulX = 30000, initMulY = 30000):
 
-		super(Graffiti, self).__init__(x, y, r, g, b)
-
-		def getGml(fn):
-			f = open(fn, 'r')
-			g = PyGML.GML(f)
-			f.close()
-			return g
+		super(GmlStroke, self).__init__(x, y, r, g, b)
 
 		self.drawn = False
 		self.pauseFirst = True
 		self.pauseLast = True
-
-		self.gml = getGml(filename)
 
 		self.theta = 0
 		self.thetaRate = 0
 		self.scale = 1.0
 		self.jitter = True
 
-		# Applied at import only
-		t = initTheta
-
-		# Cache Points
-		self.points = []
-		for stroke in self.gml.iterStrokes():
-			for pt in stroke.iterPoints():
-
-				x = pt.x * initMulX
-				y = pt.y * initMulY
-
-				xx = x
-				yy = y
-
-				x = xx*math.cos(t) - \
-						yy*math.sin(t)
-				y = yy*math.cos(t) + \
-						xx*math.sin(t)
-
-				self.points.append({'x': x, 'y': y})
-
-		# Normalize points to center
-		xsum = 0
-		ysum = 0
-		for c in self.points:
-			xsum += c['x']
-			ysum += c['y']
-
-		xavg = xsum / len(self.points)
-		yavg = ysum / len(self.points)
-
-		for i in range(len(self.points)):
-			self.points[i]['x'] -= xavg
-			self.points[i]['y'] -= yavg
-
+		# Points in the stroke
+		self.points = points
 
 	def produce(self):
 		"""
 		Generate the points of the circle.
 		"""
-		r, g, b = (0, 0, 0)
-
 		for pt in self.points:
 			x = pt['x']
 			y = pt['y']
-
-			yield (x, y, CMAX, CMAX, CMAX/4)
+			yield (x, y, self.r, self.g, self.b)
 
 		self.drawn = True
 
