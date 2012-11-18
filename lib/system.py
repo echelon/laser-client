@@ -3,7 +3,23 @@ import thread
 import random
 
 from lib import dac
+from lib.common import *
 import fakedac
+
+import os
+import math
+import random
+import itertools
+import sys
+import time
+import thread
+import copy
+from datetime import datetime
+
+from lib import dac
+from lib.common import *
+from lib.importObj import importObj
+
 
 class Show(object):
 	"""
@@ -201,7 +217,7 @@ class Animation(object):
 		self._doRunThread = False
 
 
-class AdvancedAnimation(object):
+class AdvancedAnimation(Animation):
 	"""
 	Easy Animation
 	"""
