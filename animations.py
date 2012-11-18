@@ -33,6 +33,12 @@ class GmlAnim(AdvancedAnimation):
 		self.objects.append(gmlObj)
 		self.hasAnimationThread = True
 
+		# TODO: Move this.
+		self.started = False
+
+	def notifyRestarted(self):
+		self.started = False
+
 	def animThreadFunc(self):
 		"""
 		Extends animThreadFunc with 'live drawing'.
@@ -45,6 +51,15 @@ class GmlAnim(AdvancedAnimation):
 
 		delta = now - last
 		delta = delta.microseconds / float(10**3)
+
+		print delta
+
+		if not self.started:
+			self.drawToPoint = 0
+
+		self.started = True
+
+		self.drawToPoint += delta
 
 		super(GmlAnim, self).animThreadFunc()
 

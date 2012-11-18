@@ -46,6 +46,7 @@ class Show(object):
 
 	def _switchAfter(self):
 		anim = self.animations[self.curIdx]
+		anim.notifyRestarted()
 		anim.startAnimThread()
 
 		# Add all objects to be drawn
@@ -187,6 +188,14 @@ class Animation(object):
 		"""
 		pass
 
+	def notifyRestarted(self):
+		"""
+		Let the animation know it has been restarted.
+		This can be used to restart certain animations,
+		etc.
+		"""
+		pass
+
 	def animThreadFunc(self):
 		"""
 		Performs any animation processing in an independent
@@ -215,7 +224,6 @@ class Animation(object):
 		Exit Thread.
 		"""
 		self._doRunThread = False
-
 
 class AdvancedAnimation(Animation):
 	"""
