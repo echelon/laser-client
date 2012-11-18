@@ -34,9 +34,8 @@ ps = None
 Bootstrap it all! Go, go, go!
 """
 
-# At 9, need 24.
+# At 13, need 24.
 # Wants animated dice...
-# Work on 'craft' slide
 
 def addLD(SHOW):
 	SHOW.animations.append(BouncingCardShapesAnim())
