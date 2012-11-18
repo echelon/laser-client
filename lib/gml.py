@@ -17,7 +17,7 @@ from lib.system import *
 from lib.shape import Shape
 from lib.importObj import importObj
 
-def load_gml(filename, initMulX=50000, initMulY=50000,
+def load_gml(filename, initMulX=80000, initMulY=80000,
 			initTheta=math.pi/2):
 
 	def getGml(fn):
