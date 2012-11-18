@@ -261,7 +261,7 @@ class AdvancedAnimation(Animation):
 		This does all the simple animation!
 		Saves a ton of time writing custom animations.
 		"""
-		ap = self.animParams
+		ap = self.animParams or {}
 
 		if not self.timeLast:
 			self.timeLast = datetime.now()

@@ -31,6 +31,22 @@ class GmlAnim(AdvancedAnimation):
 	def loadFile(self):
 		gmlObj = load_gml(self.loadFilename)
 		self.objects.append(gmlObj)
+		self.hasAnimationThread = True
+
+	def animThreadFunc(self):
+		"""
+		Extends animThreadFunc with 'live drawing'.
+		"""
+		if not self.timeLast:
+			self.timeLast = datetime.now()
+
+		last = self.timeLast
+		now = datetime.now()
+
+		delta = now - last
+		delta = delta.microseconds / float(10**3)
+
+		super(GmlAnim, self).animThreadFunc()
 
 class SvgAnim(AdvancedAnimation):
 	"""
