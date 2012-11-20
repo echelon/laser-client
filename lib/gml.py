@@ -17,6 +17,54 @@ from lib.system import *
 from lib.shape import Shape
 from lib.importObj import importObj
 
+"""
+Animation Class
+"""
+
+class GmlAnim(AdvancedAnimation):
+	"""
+	Imports GML strokes and allows simple animation.
+	"""
+
+	def loadFile(self):
+		gmlObj = load_gml(self.loadFilename)
+		self.objects.append(gmlObj)
+		self.hasAnimationThread = True
+
+		# TODO: Move this.
+		self.started = False
+
+	def notifyRestarted(self):
+		self.started = False
+
+	def animThreadFunc(self):
+		"""
+		Extends animThreadFunc with 'live drawing'.
+		"""
+		if not self.timeLast:
+			self.timeLast = datetime.now()
+
+		last = self.timeLast
+		now = datetime.now()
+
+		delta = now - last
+		delta = delta.microseconds / float(10**3)
+
+		if not self.started:
+			for obj in self.objects:
+				obj.drawToPoint = 0
+
+		self.started = True
+
+		for obj in self.objects:
+			obj.drawToPoint += int(delta)*2
+
+		super(GmlAnim, self).animThreadFunc()
+
+"""
+Loading
+"""
+
 def load_gml(filename, initMulX=80000, initMulY=80000,
 			initTheta=math.pi/2):
 
@@ -81,6 +129,10 @@ def load_gml(filename, initMulX=80000, initMulY=80000,
 	gmlStrokes.reverse()
 
 	return Gml(strokes=gmlStrokes)
+
+"""
+Object / Shape / Stream
+"""
 
 class Gml(Shape):
 	"""

@@ -22,6 +22,38 @@ from lib.system import *
 from lib.shape import Shape
 from lib.importObj import importObj
 
+"""
+Animation Class
+"""
+
+class SvgAnim(AdvancedAnimation):
+	"""
+	Imports a script containing points extracted previously
+	from SVG graphics files.
+	VERY crude -- need to do direct SVG importing ASAP.
+	"""
+
+	def loadFile(self):
+		# FIXME: Definitely a better way to do this...
+		exec "from objs.%s import OBJECTS" % self.loadFilename
+		exec "from objs.%s import MULT_X" % self.loadFilename
+		exec "from objs.%s import MULT_Y" % self.loadFilename
+
+		self.hasAnimationThread = False if not \
+				self.animParams else True
+
+		self.blankingSamplePts = 7
+		self.trackingSamplePts = 15
+
+		obj = load_svg(self.loadFilename)
+		self.objects.append(obj)
+
+		obj.setColor(self.r, self.g, self.b)
+
+"""
+Loading and Caching
+"""
+
 def load_svg(name, skip=3):
 	"""
 	Load a file containing parsed SVG geometry and return
@@ -40,6 +72,38 @@ def load_svg(name, skip=3):
 		paths.append(obj)
 
 	return Svg(paths=paths)
+
+class SvgCache(dict):
+
+	_INSTANCE = None
+
+	@classmethod
+	def instance(self):
+		if not SvgCache._INSTANCE:
+			SvgCache._INSTANCE = SvgCache()
+
+		return SvgCache._INSTANCE
+
+	def get(self, k):
+		if k in self:
+			return self[k]
+
+		# FIXME: Definitely a better way to do this...
+		exec "from objs.%s import OBJECTS" % k
+		exec "from objs.%s import MULT_X" % k
+		exec "from objs.%s import MULT_Y" % k
+
+		coordSets = importObj(OBJECTS, MULT_X, MULT_Y)
+		self[k] = coordSets
+
+		return coordSets
+
+	def __setattr__(self, k, v):
+		raise Exception, 'Cannot assign to SvgCache'
+
+"""
+Object / Shape / Stream
+"""
 
 class Svg(Shape):
 	"""
@@ -326,32 +390,4 @@ class SvgPath(Shape):
 			yield(int(x), int(y), self.r, self.g, self.b)
 
 		self.drawn = True
-
-class SvgCache(dict):
-
-	_INSTANCE = None
-
-	@classmethod
-	def instance(self):
-		if not SvgCache._INSTANCE:
-			SvgCache._INSTANCE = SvgCache()
-
-		return SvgCache._INSTANCE
-
-	def get(self, k):
-		if k in self:
-			return self[k]
-
-		# FIXME: Definitely a better way to do this...
-		exec "from objs.%s import OBJECTS" % k
-		exec "from objs.%s import MULT_X" % k
-		exec "from objs.%s import MULT_Y" % k
-
-		coordSets = importObj(OBJECTS, MULT_X, MULT_Y)
-		self[k] = coordSets
-
-		return coordSets
-
-	def __setattr__(self, k, v):
-		raise Exception, 'Cannot assign to SvgCache'
 

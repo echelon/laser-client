@@ -23,68 +23,6 @@ from objects import *
 ANIMATIONS FROM SVG AND GML
 """
 
-class GmlAnim(AdvancedAnimation):
-	"""
-	Imports GML strokes and allows simple animation.
-	"""
-
-	def loadFile(self):
-		gmlObj = load_gml(self.loadFilename)
-		self.objects.append(gmlObj)
-		self.hasAnimationThread = True
-
-		# TODO: Move this.
-		self.started = False
-
-	def notifyRestarted(self):
-		self.started = False
-
-	def animThreadFunc(self):
-		"""
-		Extends animThreadFunc with 'live drawing'.
-		"""
-		if not self.timeLast:
-			self.timeLast = datetime.now()
-
-		last = self.timeLast
-		now = datetime.now()
-
-		delta = now - last
-		delta = delta.microseconds / float(10**3)
-
-		if not self.started:
-			for obj in self.objects:
-				obj.drawToPoint = 0
-
-		self.started = True
-
-		for obj in self.objects:
-			obj.drawToPoint += int(delta)*2
-
-		super(GmlAnim, self).animThreadFunc()
-
-class SvgAnim(AdvancedAnimation):
-	"""
-	Imports a script containing points extracted previously
-	from SVG graphics files.
-	VERY crude -- need to do direct SVG importing ASAP.
-	"""
-
-	def loadFile(self):
-		# FIXME: Definitely a better way to do this...
-		exec "from objs.%s import OBJECTS" % self.loadFilename
-		exec "from objs.%s import MULT_X" % self.loadFilename
-		exec "from objs.%s import MULT_Y" % self.loadFilename
-
-		self.hasAnimationThread = False if not \
-				self.animParams else True
-
-		self.blankingSamplePts = 7
-		self.trackingSamplePts = 15
-
-		obj = load_svg(self.loadFilename)
-		self.objects.append(obj)
-
 """
 Custom stuff...
 """
