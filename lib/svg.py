@@ -46,6 +46,12 @@ class SvgAnim(AdvancedAnimation):
 		self.trackingSamplePts = 15
 
 		obj = load_svg(self.loadFilename)
+
+		# TODO: Quick hack
+		# Only works as init param!
+		if hasattr(self, 'scale'):
+			obj.scale = self.scale
+
 		self.objects.append(obj)
 
 		obj.setColor(self.r, self.g, self.b)

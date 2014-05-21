@@ -34,6 +34,10 @@ class GmlAnim(AdvancedAnimation):
 		# TODO: Move this.
 		self.started = False
 
+		# XXX TEMP THIS RESCALES
+		#for obj in self.objects:
+		#	obj.scale = 0.4
+
 	def notifyRestarted(self):
 		self.started = False
 
@@ -57,7 +61,7 @@ class GmlAnim(AdvancedAnimation):
 		self.started = True
 
 		for obj in self.objects:
-			obj.drawToPoint += int(delta)*2
+			obj.drawToPoint += int(delta*0.5)
 
 		super(GmlAnim, self).animThreadFunc()
 
@@ -200,6 +204,9 @@ class Gml(Shape):
 		# Drawing emulation
 		pointsDrawn = 0
 
+		# If stroke animation isn't finished, skip next
+		strokeBreak = False
+
 		# Obect skipping algo
 		self.drawIndex = (self.drawIndex+1) % self.drawEvery
 
@@ -257,6 +264,7 @@ class Gml(Shape):
 		# TODO: Not PointStream's job
 		destroy = []
 
+
 		# Draw all the objects... 
 		for i in range(len(objects)):
 			curObj = objects[i]
@@ -285,6 +293,7 @@ class Gml(Shape):
 				if self.showBlanking:
 					p = (p[0], p[1], _CMAX, 0, _CMAX)
 				for x in range(self.blankingSamplePts):
+					pointsDrawn += 1
 					yield p
 
 			# Draw the object
@@ -302,9 +311,13 @@ class Gml(Shape):
 					# Emulate Live Drawing!
 					# This will halt drawing objects
 					if pointsDrawn >= self.drawToPoint:
+						strokeBreak = True
 						curObj.drawn = True
 						nextObj = objects[0]
 						break
+
+			if strokeBreak:
+				break
 
 			# Blanking (on the way out), if set
 			if curObj.doBlanking:
@@ -341,6 +354,9 @@ class Gml(Shape):
 		for b in objects:
 			b.drawn = False
 
+		# Reset skip (read above)
+		drawNextObject = True
+
 		# Items to destroy
 		# TODO: Move this outside of object. 
 		# TODO: Not PointStream's job
@@ -376,6 +392,12 @@ class GmlStroke(Shape):
 		for pt in self.points:
 			x = pt['x']
 			y = pt['y']
+
+			# XXX TEMP FOR SUNNY
+			# FIXME: Was it not working before!?!
+			x = x * self.scale
+			y = y * self.scale
+
 			yield (x, y, self.r, self.g, self.b)
 
 		self.drawn = True

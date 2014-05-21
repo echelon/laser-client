@@ -32,7 +32,7 @@ class SquareAnimation(Animation):
 	def setup(self):
 
 		self.hasAnimationThread = True
-		self.scale = 1.0
+		self.scale = 1.0 * 0.0000002
 		self.scaleDirec = True
 
 		self.blankingSamplePts = 12
@@ -48,13 +48,13 @@ class SquareAnimation(Animation):
 		self.objects.append(self.square)
 
 	def animThreadFunc(self):
-		SQUARE_RADIUS_MIN = 4000
-		SQUARE_RADIUS_MAX = 12000
+		SQUARE_RADIUS_MIN = 4000 * 0.1
+		SQUARE_RADIUS_MAX = 12000 * 0.1
 		SQUARE_RADIUS_INC = 50
 
 		PAN_X_INC_MAG = 500
-		PAN_X_MAX = 23000
-		PAN_X_MIN = -23000
+		PAN_X_MAX = 4500
+		PAN_X_MIN = -4500
 
 		SPIN_THETA_INC = math.pi / 40
 
@@ -446,8 +446,8 @@ class ShamrockAnimation(Animation):
 
 class ArrowAnim(Animation):
 
-	SCALE_MAX = 7.0
-	SCALE_MIN = 5.5
+	SCALE_MAX = 7.0 * 0.05
+	SCALE_MIN = 5.5 * 0.05
 	SCALE_RATE = 0.5
 
 	TILT_THETA_MAX = 0.2
@@ -460,7 +460,7 @@ class ArrowAnim(Animation):
 		from objs.arrow import MULT_Y
 
 		self.hasAnimationThread = True
-		self.scale = self.SCALE_MIN
+		self.scale = self.SCALE_MIN * -1.0
 		self.scaleDirec = True
 		self.theta = 1.0
 		self.thetaDirec = True
@@ -684,8 +684,8 @@ class AwesomeAnimation(Animation):
 	Awesome face animation
 	"""
 
-	SCALE_MAX = 6.0
-	SCALE_MIN = 1.5
+	SCALE_MAX = 5.0
+	SCALE_MIN = 2.5
 	SCALE_RATE = 0.5
 
 	def setup(self):
@@ -875,8 +875,8 @@ class BouncingCardShapesAnim(Animation):
 
 class MusicAnim(Animation):
 
-	MAX_X = 27000
-	MIN_X = -27000
+	MAX_X = 7000
+	MIN_X = -7000
 	MAX_Y = 7000
 	MIN_Y = 0
 
@@ -888,7 +888,7 @@ class MusicAnim(Animation):
 
 	def setup(self):
 		self.hasAnimationThread = True
-		self.scale = 1.0
+		self.scale = 0.01
 		self.theta = 1.0
 		self.thetaDirec = True
 

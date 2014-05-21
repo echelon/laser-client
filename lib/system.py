@@ -251,6 +251,12 @@ class AdvancedAnimation(Animation):
 		self.scaleDirecX = True
 		self.scaleDirecY = True
 
+		# TODO: This only works at init.
+		# Cannot set after init.
+		# Need self.setScale() to propagate to subobjs
+		if init and 'scale' in init:
+			self.scale = init['scale']
+
 		self.rotate = 0.0
 		self.rotateDirec = True
 

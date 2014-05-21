@@ -38,70 +38,6 @@ Bootstrap it all! Go, go, go!
 # At 13, need 24.
 # Wants animated dice...
 
-def addLD(SHOW):
-	SHOW.animations.append(
-		GmlAnim('gml/bewareBootDevil.gml')
-	)
-	SHOW.animations.append(BouncingCardShapesAnim())
-	SHOW.animations.append(SvgAnim('luckydraw'))
-	SHOW.animations.append(SvgAnim('cardAce',
-		init = {
-			'theta': 0.1
-		},
-		anim = {
-			'scale_x_mag': 1.0,
-			'scale_x_rate': 0.006
-		}
-	))
-	SHOW.animations.append(SvgAnim('tattoo'))
-	SHOW.animations.append(SvgAnim('piercing'))
-	SHOW.animations.append(SvgAnim('ldlogo',
-		anim = {
-			'rotate': True,
-			'rotateRate': 0.009,
-		}
-	))
-	SHOW.animations.append(GhostAnimation())
-
-def addMC(SHOW):
-	SHOW.animations.append(
-			SvgAnim('maccrackens', b=0,
-		anim = {
-			'scale': True,
-			'scaleRate': 0.001,
-			'scaleMin': 0.7,
-			'scaleMax': 1.0,
-		}
-	))
-	SHOW.animations.append(ShamrockAnimation())
-	SHOW.animations.append(
-			SvgAnim('craftbeer', b=0,
-		anim = {
-			'rotate': True,
-			'rotateRate': 0.0006,
-			'rotateMax': 0.3,
-			'rotateMin': -0.3,
-		}
-	))
-	SHOW.animations.append(
-			SvgAnim('celticpub', b=0,
-		anim = {
-			#'scale_x_mag': 1.0,
-			#'scale_x_rate': 0.001,
-			'scale_y_mag': 1.0,
-			'scale_y_rate': 0.004
-		}
-	))
-	SHOW.animations.append(
-			SvgAnim('liveMusic', b=0,
-		anim = {
-			'scale_x_mag': 1.0,
-			'scale_x_rate': 0.002
-		}
-	))
-	SHOW.animations.append(MusicAnim())
-	SHOW.animations.append(ArrowAnim())
-
 def main():
 	global SHOW
 	global ps
@@ -110,9 +46,10 @@ def main():
 		global SHOW
 		while True:
 			SHOW.next()
-			time.sleep(3.0)
+			time.sleep(5.0)
 
 	ps = PointStream()
+	ps.scale = 0.0000001
 	#ps.showBlanking = True
 	#ps.showTracking = True
 	ps.blankingSamplePts = 12
@@ -123,16 +60,87 @@ def main():
 	SHOW = Show()
 	SHOW.stream = ps
 
-	#ballAnim4 = BouncingBall(numBalls=4)
-	#squareAnim = SquareAnimation()
+	mike = SvgAnim('michael',
+		anim = {
+			'rotate': True,
+			'rotateRate': 0.001,
+			'rotateMin': -0.501,
+			'rotateMax': 0.501, 'scale': True,
+			'scaleRate': 0.0009,
+			'scaleMin': 0.5,
+			'scaleMax': 1.2,
+		}
+	)
+	#s = snoo.objects[0]
+	#s.trackingSamplePts = 5
+	#s.blankingSamplePts = 50
 
-	# Make the show order 'fair' while restarting program.
-	if random.randint(0, 1):
-		addMC(SHOW)
-		addLD(SHOW)
-	else:
-		addLD(SHOW)
-		addMC(SHOW)
+	#for o in snoo.objects:
+	#	o.scale = 2.0
+	#	#o.showBlanking = True
+	#snoo.showBlanking = True
+	#snoo.scale = 2.0
+	#SHOW.animations.append(mike)
+	#SHOW.animations.append(AwesomeAnimation())
+	#SHOW.animations.append(BatAnimation())
+	#SHOW.animations.append(BouncingBall(numBalls=4))
+	#SHOW.animations.append(GhostAnimation())
+	#SHOW.animations.append(GhostAnimation())
+	#SHOW.animations.append(BatAnimation())
+
+
+	octo = SvgAnim('octocat',
+		anim = {
+			'rotate': True,
+			'rotateRate': 0.001,
+			'rotateMin': -0.501,
+			'rotateMax': 0.501,
+			'scale': True,
+			'scaleRate': 0.0009,
+			'scaleMin': 0.5,
+			'scaleMax': 1.2,
+		}
+	)
+
+
+	snoo = SvgAnim('snoo',
+		anim = {
+            #'rotate': True,
+            #'rotateRate': 0.0005,
+            #'rotateMin': -0.501,
+            #'rotateMax': 0.501,
+            #'scale': True,
+            #'scaleRate': 0.0001,
+            #'scaleMin': 0.1,
+            #'scaleMax': 0.4,
+		}
+	)
+
+	awesome = SvgAnim('awesome',
+		anim = {
+			'rotate': True,
+			'rotateRate': 0.001,
+			'rotateMin': -0.501,
+			'rotateMax': 0.501,
+			'scale': True,
+			'scaleRate': 0.0005,
+			'scaleMin': 0.4,
+			'scaleMax': 0.9,
+		}
+	)
+
+	SHOW.animations.append(snoo)
+	#SHOW.animations.append(GmlAnim('gml/happy2.gml'))
+	#SHOW.animations.append(GmlAnim('gml/birthday2.gml'))
+	#SHOW.animations.append(GmlAnim('gml/i_heart_js.gml'))
+	#SHOW.animations.append(octo)
+
+	"""
+	SHOW.animations.append(
+			GmlAnim('gml/doritoslocos.gml')
+	)
+	SHOW.animations.append(ArrowAnim())
+	"""
 
 	SHOW.next()
 	SHOW.prev()

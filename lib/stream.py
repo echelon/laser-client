@@ -7,8 +7,8 @@ PointStream -- The main galvo multiple object drawing
 
 SHOW_TRACKING_PATH = False
 SHOW_BLANKING_PATH = False
-TRACKING_SAMPLE_PTS = 10
-BLANKING_SAMPLE_PTS = 10
+TRACKING_SAMPLE_PTS = 1
+BLANKING_SAMPLE_PTS = 1
 
 _CMAX = 65535 # MAX COLOR VALUE
 
@@ -16,7 +16,7 @@ import math
 import random
 import itertools
 import sys
-import thread
+import threading
 import time
 
 class PointStream(object):
@@ -27,6 +27,16 @@ class PointStream(object):
 		# A list of all the objects to draw
 		# XXX: For now, add and remove manually. 
 		self.objects = []
+
+		# A dictionary of objects registered using the new
+		# addObject()/removeObject() API. This API has to 
+		# be compatible with the existing API. 
+		self.dictionary = {}
+		self.dictIncrement = 0
+		self.dictLock = threading.Lock()
+
+		# Frame buffering
+		self.nextFrame = []
 
 		# Global object manipulation
 		self.scale = 1.0
@@ -91,6 +101,8 @@ class PointStream(object):
 			nextObj = None # XXX SCOPE HERE FOR DEBUG 
 			reverse = False
 
+			#self.requestLock()
+
 			try:
 				# XXX: Memory copy for opencv app
 				objects = self.objects[:]
@@ -145,6 +157,16 @@ class PointStream(object):
 					# Skip draw?
 					if curObj.skipDraw:
 						continue
+
+					# "DrawEvery" heuristic
+					"""
+					if hasattr(curObj, 'drawEveryHeuristic') and \
+						curObj.drawEveryHeuristic:
+							h = curObj
+							h.drawEveryCount += 1
+							if h.drawEveryCount % h.drawEvery != 0:
+								continue
+					"""
 
 					# Prepare to cull object if it is marked destroy
 					# TODO: Move this outside of object. 
@@ -217,6 +239,8 @@ class PointStream(object):
 				for i in destroy:
 					objects.pop(i)
 
+				self.advanceFrame()
+
 			except Exception as e:
 				import sys, traceback
 				while True:
@@ -225,8 +249,88 @@ class PointStream(object):
 					traceback.print_tb(sys.exc_info()[2])
 					print "---------------------\n"
 
+			finally:
+				#self.releaseLock()
+				pass
+
+	def setNextFrame(self, objects):
+		"""
+		Sets the next frame of objects to be displayed.
+		Once the current frame finishes, the next frame will be
+		set (and held until a new one comes).
+		"""
+		self.nextFrame = objects
+
+	def advanceFrame(self):
+		if not self.nextFrame:
+			return
+		self.objects = []
+		self.objects = self.nextFrame[:]
+
+	def addObject(self, obj):
+		#self.requestLock()
+
+		key = self.dictIncrement
+		self.dictionary[key] = obj
+		self.dictIncrement += 1
+
+		self.objects = self.dictionary.values()
+
+		#self.releaseLock()
+		return key
+
+	def addObjects(self, objects):
+		#self.requestLock()
+		keys = []
+		for obj in objects:
+			key = self.dictIncrement
+			self.dictionary[key] = obj
+			self.dictIncrement += 1
+			keys.append(key)
+
+		self.objects = self.dictionary.values()
+		#self.releaseLock()
+		return keys
+
+	def removeObject(self, key):
+		if key not in self.dictionary:
+			print "Key DNE in Stream! Key='%s'" % str(key)
+			return
+
+		#self.requestLock()
+
+		obj = self.dictionary.pop(key)
+		self.objects = self.dictionary.values()
+
+		#self.releaseLock()
+
+		return obj
+
+	def removeObjects(self, keys):
+		#self.requestLock()
+		objects = []
+		for key in keys:
+			if key not in self.dictionary:
+				print "Key DNE in Stream! Key='%s'" % str(key)
+				continue
+			obj = self.dictionary.pop(key)
+			objects.append(obj)
+
+		self.objects = self.dictionary.values()
+		#self.releaseLock()
+
 	def read(self, n):
 		d = [self.stream.next() for i in xrange(n)]
 		return d
+
+	def requestLock(self):
+		self.dictLock.acquire()
+		#while self.dictLock:
+		#	continue
+		#self.dictLock = True
+
+	def releaseLock(self):
+		self.dictLock.release()
+		#self.dictLock = False
 
 
