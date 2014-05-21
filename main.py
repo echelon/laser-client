@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import sys
 import math
 import random
 import itertools
@@ -37,6 +38,17 @@ Bootstrap it all! Go, go, go!
 
 # At 13, need 24.
 # Wants animated dice...
+
+def get_obj_filename():
+	"""See if the named object file exists."""
+	if len(sys.argv) < 2:
+		return
+
+	name = sys.argv[1]
+	fname = 'objs/{}.py'.format(name)
+
+	if os.path.exists(fname):
+		return name
 
 def main():
 	global SHOW
@@ -102,8 +114,13 @@ def main():
 		}
 	)
 
+	default = 'snoo'
+	name = get_obj_filename()
 
-	snoo = SvgAnim('snoo',
+	if not name:
+		name = default
+
+	obj = SvgAnim(name,
 		anim = {
             #'rotate': True,
             #'rotateRate': 0.0005,
@@ -116,20 +133,7 @@ def main():
 		}
 	)
 
-	awesome = SvgAnim('awesome',
-		anim = {
-			'rotate': True,
-			'rotateRate': 0.001,
-			'rotateMin': -0.501,
-			'rotateMax': 0.501,
-			'scale': True,
-			'scaleRate': 0.0005,
-			'scaleMin': 0.4,
-			'scaleMax': 0.9,
-		}
-	)
-
-	SHOW.animations.append(snoo)
+	SHOW.animations.append(obj)
 	#SHOW.animations.append(GmlAnim('gml/happy2.gml'))
 	#SHOW.animations.append(GmlAnim('gml/birthday2.gml'))
 	#SHOW.animations.append(GmlAnim('gml/i_heart_js.gml'))
