@@ -48,7 +48,7 @@ def get_obj_filename():
 	fname = 'objs/{}.py'.format(name)
 
 	if os.path.exists(fname):
-		return name
+		return name.replace('/', '.')
 
 def main():
 	global SHOW
